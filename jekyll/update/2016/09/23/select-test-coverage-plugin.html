@@ -6,13 +6,13 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>My Personal Blog</title>
-  <meta name="description" content="This blog is an attempt to dive into personal blogging related to software development.">
+  <title>Cobertura and JaCoCo: using test coverage plugin</title>
+  <meta name="description" content="Recently I decided to configure a test coverage plugin for one of my pet projects to have a better visibility of my unit tests. At work we use SonarQube - to...">
 
   
   
   <link rel="stylesheet" href="https://mogikanen9.github.io/css/main.css">
-  <link rel="canonical" href="https://mogikanen9.github.io/">
+  <link rel="canonical" href="https://mogikanen9.github.io/jekyll/update/2016/09/23/select-test-coverage-plugin.html">
   <link rel="alternate" type="application/rss+xml" title="My Personal Blog" href="https://mogikanen9.github.io/feed.xml">
   
   
@@ -60,33 +60,64 @@
 
     <main class="page-content" aria-label="Content">
       <div class="wrapper">
-        <div class="home">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
 
-  <h1 class="page-heading">Posts</h1>
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Cobertura and JaCoCo: using test coverage plugin</h1>
+    <p class="post-meta"><time datetime="2016-09-23T21:15:49-04:00" itemprop="datePublished">Sep 23, 2016</time></p>
+  </header>
 
-  <ul class="post-list">
-    
-      <li>
-        <span class="post-meta">Sep 23, 2016</span>
+  <div class="post-content" itemprop="articleBody">
+    <p>Recently I decided to configure a test coverage plugin for one of my pet projects to have a better visibility of my unit tests. At work we use <a href="http://www.sonarqube.org/">SonarQube</a> - too much for my purpose. I immediately looked at Cobertura and its <a href="http://www.mojohaus.org/cobertura-maven-plugin/">Maven plugin</a>. Several years ago I setup Cobertura for couple of real projects at our CI server and it worked great. The setup was straightforward and I started to enjoy my test coverage report. My happy time was short - once I started to use lambdas (introduced in Java 8) extensively the plugin started to struggle with analysis. The plugin failed to check those classes and generated a errors like:</p>
 
-        <h2>
-          <a class="post-link" href="/jekyll/update/2016/09/23/select-test-coverage-plugin.html">Cobertura and JaCoCo: using test coverage plugin</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Sep 20, 2016</span>
-
-        <h2>
-          <a class="post-link" href="/jekyll/update/2016/09/20/welcome-to-jekyll.html">Welcome to Jekyll!</a>
-        </h2>
-      </li>
-    
-  </ul>
-
-  <p class="rss-subscribe">subscribe <a href="/feed.xml">via RSS</a></p>
-
+<div class="highlighter-rouge"><pre class="highlight"><code>java.lang.IllegalArgumentException: INVOKESPECIAL/STATIC on interfaces require ASM 5
+</code></pre>
 </div>
+
+<p>I was using version 2.7 which supposed to support Java 8. Once googled I found that I am not the only one who is facing those issues. People reported same issues at their [GitHub page] (https://github.com/cobertura/cobertura/issues/166)</p>
+
+<p>Dilemma: should I spent more time digging into it or try an alternative?</p>
+
+<p>I knew that SonarQube was using (JaCoCo)[http://www.eclemma.org/jacoco/] and I also used Emma Eclipse plugin long time ago and it also worked quite well. Decided to try JaCoco. The setup was not as neat as for Cobertura plugin but I made it working and it worked perfectly with Java 8.</p>
+
+<p>The final Maven plugin configuration is below - just in case somebody wants to have it as an example.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;build&gt;
+	...
+  &lt;plugin&gt;
+    &lt;groupId&gt;org.jacoco&lt;/groupId&gt;
+    &lt;artifactId&gt;jacoco-maven-plugin&lt;/artifactId&gt;
+    &lt;version&gt;0.7.7.201606060606&lt;/version&gt;
+    &lt;configuration&gt;
+      &lt;destFile&gt;${basedir}/target/coverage-reports/jacoco-unit.exec&lt;/destFile&gt;
+      &lt;dataFile&gt;${basedir}/target/coverage-reports/jacoco-unit.exec&lt;/dataFile&gt;
+      &lt;/configuration&gt;
+        &lt;executions&gt;
+          &lt;execution&gt;
+            &lt;id&gt;jacoco-initialize&lt;/id&gt;
+            &lt;goals&gt;
+              &lt;goal&gt;prepare-agent&lt;/goal&gt;
+            &lt;/goals&gt;
+          &lt;/execution&gt;
+          &lt;execution&gt;
+            &lt;id&gt;jacoco-site&lt;/id&gt;
+            &lt;phase&gt;package&lt;/phase&gt;
+            &lt;goals&gt;
+              &lt;goal&gt;report&lt;/goal&gt;
+              &lt;/goals&gt;
+          &lt;/execution&gt;
+        &lt;/executions&gt;
+      &lt;/plugin&gt;
+    &lt;/plugins&gt;
+    ...
+&lt;/build&gt;
+</code></pre>
+</div>
+
+  </div>
+
+  
+</article>
 
       </div>
     </main>

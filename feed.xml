@@ -6,9 +6,68 @@
 </description>
     <link>https://mogikanen9.github.io/</link>
     <atom:link href="https://mogikanen9.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Tue, 20 Sep 2016 22:09:46 -0400</pubDate>
-    <lastBuildDate>Tue, 20 Sep 2016 22:09:46 -0400</lastBuildDate>
+    <pubDate>Fri, 23 Sep 2016 21:42:17 -0400</pubDate>
+    <lastBuildDate>Fri, 23 Sep 2016 21:42:17 -0400</lastBuildDate>
     <generator>Jekyll v3.2.1</generator>
+    
+      <item>
+        <title>Cobertura and JaCoCo: using test coverage plugin</title>
+        <description>&lt;p&gt;Recently I decided to configure a test coverage plugin for one of my pet projects to have a better visibility of my unit tests. At work we use &lt;a href=&quot;http://www.sonarqube.org/&quot;&gt;SonarQube&lt;/a&gt; - too much for my purpose. I immediately looked at Cobertura and its &lt;a href=&quot;http://www.mojohaus.org/cobertura-maven-plugin/&quot;&gt;Maven plugin&lt;/a&gt;. Several years ago I setup Cobertura for couple of real projects at our CI server and it worked great. The setup was straightforward and I started to enjoy my test coverage report. My happy time was short - once I started to use lambdas (introduced in Java 8) extensively the plugin started to struggle with analysis. The plugin failed to check those classes and generated a errors like:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;java.lang.IllegalArgumentException: INVOKESPECIAL/STATIC on interfaces require ASM 5
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;I was using version 2.7 which supposed to support Java 8. Once googled I found that I am not the only one who is facing those issues. People reported same issues at their [GitHub page] (https://github.com/cobertura/cobertura/issues/166)&lt;/p&gt;
+
+&lt;p&gt;Dilemma: should I spent more time digging into it or try an alternative?&lt;/p&gt;
+
+&lt;p&gt;I knew that SonarQube was using (JaCoCo)[http://www.eclemma.org/jacoco/] and I also used Emma Eclipse plugin long time ago and it also worked quite well. Decided to try JaCoco. The setup was not as neat as for Cobertura plugin but I made it working and it worked perfectly with Java 8.&lt;/p&gt;
+
+&lt;p&gt;The final Maven plugin configuration is below - just in case somebody wants to have it as an example.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;build&amp;gt;
+	...
+  &amp;lt;plugin&amp;gt;
+    &amp;lt;groupId&amp;gt;org.jacoco&amp;lt;/groupId&amp;gt;
+    &amp;lt;artifactId&amp;gt;jacoco-maven-plugin&amp;lt;/artifactId&amp;gt;
+    &amp;lt;version&amp;gt;0.7.7.201606060606&amp;lt;/version&amp;gt;
+    &amp;lt;configuration&amp;gt;
+      &amp;lt;destFile&amp;gt;${basedir}/target/coverage-reports/jacoco-unit.exec&amp;lt;/destFile&amp;gt;
+      &amp;lt;dataFile&amp;gt;${basedir}/target/coverage-reports/jacoco-unit.exec&amp;lt;/dataFile&amp;gt;
+      &amp;lt;/configuration&amp;gt;
+        &amp;lt;executions&amp;gt;
+          &amp;lt;execution&amp;gt;
+            &amp;lt;id&amp;gt;jacoco-initialize&amp;lt;/id&amp;gt;
+            &amp;lt;goals&amp;gt;
+              &amp;lt;goal&amp;gt;prepare-agent&amp;lt;/goal&amp;gt;
+            &amp;lt;/goals&amp;gt;
+          &amp;lt;/execution&amp;gt;
+          &amp;lt;execution&amp;gt;
+            &amp;lt;id&amp;gt;jacoco-site&amp;lt;/id&amp;gt;
+            &amp;lt;phase&amp;gt;package&amp;lt;/phase&amp;gt;
+            &amp;lt;goals&amp;gt;
+              &amp;lt;goal&amp;gt;report&amp;lt;/goal&amp;gt;
+              &amp;lt;/goals&amp;gt;
+          &amp;lt;/execution&amp;gt;
+        &amp;lt;/executions&amp;gt;
+      &amp;lt;/plugin&amp;gt;
+    &amp;lt;/plugins&amp;gt;
+    ...
+&amp;lt;/build&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+</description>
+        <pubDate>Fri, 23 Sep 2016 21:15:49 -0400</pubDate>
+        <link>https://mogikanen9.github.io/jekyll/update/2016/09/23/select-test-coverage-plugin.html</link>
+        <guid isPermaLink="true">https://mogikanen9.github.io/jekyll/update/2016/09/23/select-test-coverage-plugin.html</guid>
+        
+        
+        <category>jekyll</category>
+        
+        <category>update</category>
+        
+      </item>
     
       <item>
         <title>Welcome to Jekyll!</title>
