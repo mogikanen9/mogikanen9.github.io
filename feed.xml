@@ -6,8 +6,8 @@
 </description>
     <link>https://mogikanen9.github.io/</link>
     <atom:link href="https://mogikanen9.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Fri, 23 Sep 2016 21:42:17 -0400</pubDate>
-    <lastBuildDate>Fri, 23 Sep 2016 21:42:17 -0400</lastBuildDate>
+    <pubDate>Sun, 25 Sep 2016 12:27:07 -0400</pubDate>
+    <lastBuildDate>Sun, 25 Sep 2016 12:27:07 -0400</lastBuildDate>
     <generator>Jekyll v3.2.1</generator>
     
       <item>
@@ -18,11 +18,11 @@
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;p&gt;I was using version 2.7 which supposed to support Java 8. Once googled I found that I am not the only one who is facing those issues. People reported same issues at their [GitHub page] (https://github.com/cobertura/cobertura/issues/166)&lt;/p&gt;
+&lt;p&gt;I was using version 2.7 which supposed to support Java 8. Once googled I found that I am not the only one who is facing those issues. People reported same issues at their &lt;a href=&quot;https://github.com/cobertura/cobertura/issues/166&quot;&gt;GitHub page&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;Dilemma: should I spent more time digging into it or try an alternative?&lt;/p&gt;
 
-&lt;p&gt;I knew that SonarQube was using (JaCoCo)[http://www.eclemma.org/jacoco/] and I also used Emma Eclipse plugin long time ago and it also worked quite well. Decided to try JaCoco. The setup was not as neat as for Cobertura plugin but I made it working and it worked perfectly with Java 8.&lt;/p&gt;
+&lt;p&gt;I knew that SonarQube was using &lt;a href=&quot;http://www.eclemma.org/jacoco/&quot;&gt;JaCoCo&lt;/a&gt; and I also used Emma Eclipse plugin long time ago and it also worked quite well. Decided to try JaCoco. The setup was not as neat as for Cobertura plugin but I made it working and it worked perfectly with Java 8.&lt;/p&gt;
 
 &lt;p&gt;The final Maven plugin configuration is below - just in case somebody wants to have it as an example.&lt;/p&gt;
 
