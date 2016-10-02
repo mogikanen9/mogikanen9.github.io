@@ -6,12 +6,12 @@
 </description>
     <link>https://mogikanen9.github.io/</link>
     <atom:link href="https://mogikanen9.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Mon, 26 Sep 2016 22:17:28 -0400</pubDate>
-    <lastBuildDate>Mon, 26 Sep 2016 22:17:28 -0400</lastBuildDate>
+    <pubDate>Sat, 01 Oct 2016 20:35:57 -0400</pubDate>
+    <lastBuildDate>Sat, 01 Oct 2016 20:35:57 -0400</lastBuildDate>
     <generator>Jekyll v3.2.1</generator>
     
       <item>
-        <title>My First Steps with HAPI. Pat 1. Introduction.</title>
+        <title>My First Steps with HAPI. Part 1. Introduction.</title>
         <description>&lt;p&gt;This post is an introduction into HAPI library.&lt;/p&gt;
 
 &lt;h3 id=&quot;introduction&quot;&gt;Introduction&lt;/h3&gt;
@@ -19,7 +19,7 @@
 &lt;p&gt;We are starting a new project in Healthcare integration domain. The core functionality can be described like “a service/application which accepts HL7v2 messages over HTTP, validates them, transforms into custom XML and delivers to the recipients via SFTP”. When I googled for “HL7v2 Java” - HAPI is the first thing which tops the results. What does it mean? Let’s start with some definitions:&lt;/p&gt;
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Health_Level_7&quot;&gt;HL7&lt;/a&gt; stands for “Health Level 7”. It’s a standard which describes how to transfer different healthcare clinical data.&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Health_Level_7#HL7_version_2&quot;&gt;HL7v2&lt;/a&gt; is a version of HL7 standard developed in 1989 and it is based on pipes &lt;code class=&quot;highlighter-rouge&quot;&gt;|&lt;/code&gt; and caret &lt;code class=&quot;highlighter-rouge&quot;&gt;^&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Health_Level_7#HL7_version_2&quot;&gt;HL7v2&lt;/a&gt; is a version of HL7 standard developed in 1989 and it is based on pipes &lt;code class=&quot;highlighter-rouge&quot;&gt;|&lt;/code&gt; and carets &lt;code class=&quot;highlighter-rouge&quot;&gt;^&lt;/code&gt;.&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;http://hl7api.sourceforge.net/&quot;&gt;HAPI&lt;/a&gt; is a Java-based Hl7v2 parser library.&lt;/li&gt;
 &lt;/ul&gt;
 
@@ -27,7 +27,7 @@
 
 &lt;p&gt;First results of checking HAPI website:&lt;/p&gt;
 &lt;ul&gt;
-  &lt;li&gt;The latest stable version is 2.2 and the sast published date is “2014-05-12”;&lt;/li&gt;
+  &lt;li&gt;The latest stable version is 2.2 and the last published date is “2014-05-12”;&lt;/li&gt;
   &lt;li&gt;The site is hosted at &lt;a href=&quot;https://sourceforge.net/&quot;&gt;sourceforge.net&lt;/a&gt;;&lt;/li&gt;
   &lt;li&gt;The library is built by &lt;a href=&quot;http://maven.apache.org/&quot;&gt;Maven&lt;/a&gt;;&lt;/li&gt;
   &lt;li&gt;Lots of examples in &lt;a href=&quot;http://hl7api.sourceforge.net/devbyexample.html&quot;&gt;Developing using HAPI - By Example&lt;/a&gt; section;&lt;/li&gt;
@@ -107,7 +107,7 @@
 
 &lt;p&gt;I knew that SonarQube was using &lt;a href=&quot;http://www.eclemma.org/jacoco/&quot;&gt;JaCoCo&lt;/a&gt; and I also used Emma Eclipse plugin long time ago and it also worked quite well. Decided to try JaCoco. The setup was not as neat as for Cobertura plugin but I made it working and it worked perfectly with Java 8.&lt;/p&gt;
 
-&lt;p&gt;The final Maven plugin configuration is below - just in case somebody wants to have it as an example.&lt;/p&gt;
+&lt;p&gt;The final Maven plugin configuration is below.&lt;/p&gt;
 
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;build&amp;gt;
 	...
