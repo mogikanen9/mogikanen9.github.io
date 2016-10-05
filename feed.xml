@@ -6,9 +6,125 @@
 </description>
     <link>https://mogikanen9.github.io/</link>
     <atom:link href="https://mogikanen9.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sat, 01 Oct 2016 20:35:57 -0400</pubDate>
-    <lastBuildDate>Sat, 01 Oct 2016 20:35:57 -0400</lastBuildDate>
+    <pubDate>Tue, 04 Oct 2016 23:02:05 -0400</pubDate>
+    <lastBuildDate>Tue, 04 Oct 2016 23:02:05 -0400</lastBuildDate>
     <generator>Jekyll v3.2.1</generator>
+    
+      <item>
+        <title>My First Steps with HAPI. Part 2. Parsing HL7 message.</title>
+        <description>&lt;p&gt;This post is a second part of my introduction into HAPI library.&lt;/p&gt;
+
+&lt;h3 id=&quot;parse-hl7-message&quot;&gt;Parse HL7 message&lt;/h3&gt;
+
+&lt;p&gt;We will start with a simple project which will demonstrate how to parse HL7 messages using HAPI API.&lt;/p&gt;
+
+&lt;h4 id=&quot;tools-and-libraries-will-use&quot;&gt;Tools and libraries will use&lt;/h4&gt;
+&lt;ul&gt;
+  &lt;li&gt;JDK 1.8&lt;/li&gt;
+  &lt;li&gt;Maven&lt;/li&gt;
+  &lt;li&gt;Eclipse (STS 3.8.1)&lt;/li&gt;
+  &lt;li&gt;HAPI API v2.2&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;HAPI has a very good &lt;a href=&quot;http://hl7api.sourceforge.net/devbyexample.html&quot;&gt;set of examples&lt;/a&gt;
+which is a good starting point. Will use it as well - will jump right to section ‘Parsing Messages’.&lt;/p&gt;
+
+&lt;h4 id=&quot;configuration-steps&quot;&gt;Configuration steps&lt;/h4&gt;
+&lt;ul&gt;
+  &lt;li&gt;Create empty Maven based project simple-hl7-parser using basic archetype;&lt;/li&gt;
+  &lt;li&gt;Add HL7 dependencies:
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;..........................
+&amp;lt;properties&amp;gt;
+      &amp;lt;hapi.version&amp;gt;2.2&amp;lt;/hapi.version&amp;gt;
+  &amp;lt;/properties&amp;gt;
+&amp;lt;dependency&amp;gt;
+  &amp;lt;groupId&amp;gt;ca.uhn.hapi&amp;lt;/groupId&amp;gt;
+  &amp;lt;artifactId&amp;gt;hapi-base&amp;lt;/artifactId&amp;gt;
+  &amp;lt;version&amp;gt;${hapi.version}&amp;lt;/version&amp;gt;
+  &amp;lt;scope&amp;gt;compile&amp;lt;/scope&amp;gt;
+&amp;lt;/dependency&amp;gt;
+&amp;lt;dependency&amp;gt;
+  &amp;lt;groupId&amp;gt;ca.uhn.hapi&amp;lt;/groupId&amp;gt;
+  &amp;lt;artifactId&amp;gt;hapi-structures-v24&amp;lt;/artifactId&amp;gt;
+  &amp;lt;version&amp;gt;${hapi.version}&amp;lt;/version&amp;gt;
+  &amp;lt;scope&amp;gt;compile&amp;lt;/scope&amp;gt;
+&amp;lt;/dependency&amp;gt;
+..........................
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Import project into the IDE.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;em&gt;Notes: HAPI library packs structures for different HL7 versions in different artifacts. In my case I will use/parse HL7v2.4 messages -  I only included ‘hapi-structures-v24’ artifact.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;coding&quot;&gt;Coding&lt;/h4&gt;
+&lt;ul&gt;
+  &lt;li&gt;Create an instance HapiContext&lt;/li&gt;
+  &lt;li&gt;Create an instance of CanonicalModelClassFactory&lt;/li&gt;
+  &lt;li&gt;Add/set CanonicalModelClassFactory to HapiContext&lt;/li&gt;
+  &lt;li&gt;Get parser (PipeParser)&lt;/li&gt;
+  &lt;li&gt;Parse message&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Below is a piece of sample code:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;HapiContext context = new DefaultHapiContext();
+
+CanonicalModelClassFactory mcf = new CanonicalModelClassFactory(&quot;2.4&quot;);
+
+context.setModelClassFactory(mcf);
+
+PipeParser parser = context.getPipeParser();
+
+ca.uhn.hl7v2.model.v24.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v24.message.ORU_R01) parser.parse(message);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The following things immediately pops to our eyes:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;CanonicalModelClassFactory takes Hl7v2 specific version (2.4 in our case)&lt;/li&gt;
+  &lt;li&gt;Parsing result is an instance of ORU_R01 class from package ca.uhn.hl7v2.model.v24.message&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Items above means that we need to know which HL7v2 message we expect to parse and each version has its own strict model.&lt;/p&gt;
+
+&lt;!-- Universal Code for Disqus  --&gt;
+&lt;div id=&quot;disqus_thread&quot;&gt;&lt;/div&gt;
+&lt;script&gt;
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    /*
+    var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+
+        s.src = '//https-mogikanen9-github-io.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+&lt;/script&gt;
+
+&lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
+
+</description>
+        <pubDate>Tue, 04 Oct 2016 22:55:49 -0400</pubDate>
+        <link>https://mogikanen9.github.io/java/hapi/2016/10/04/first-steps-with-hapi-p2.html</link>
+        <guid isPermaLink="true">https://mogikanen9.github.io/java/hapi/2016/10/04/first-steps-with-hapi-p2.html</guid>
+        
+        
+        <category>java</category>
+        
+        <category>hapi</category>
+        
+      </item>
     
       <item>
         <title>My First Steps with HAPI. Part 1. Introduction.</title>
