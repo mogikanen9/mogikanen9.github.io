@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Configure Shibboleth SP on macOS Sierra</title>
+  <meta name="description" content="Software Shibboleth SP - Service Provider software to which allows to configure SSO-enabled web-sites/web-applications. Apache Web Server - web server which ...">
+
+  
+  
+  <link rel="stylesheet" href="https://mogikanen9.github.io/css/main.css">
+  <link rel="canonical" href="https://mogikanen9.github.io/apache/shibboleth/2016/12/28/configure-shibboleth-sp-on-mac.html">
+  <link rel="alternate" type="application/rss+xml" title="My Personal Blog" href="https://mogikanen9.github.io/feed.xml">
+  
+  
+</head>
+
+
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+
+    
+    
+    <a class="site-title" href="https://mogikanen9.github.io/">My Personal Blog</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15" width="18px" height="15px">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="https://mogikanen9.github.io/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Configure Shibboleth SP on macOS Sierra</h1>
+    <p class="post-meta"><time datetime="2016-12-28T10:15:49-05:00" itemprop="datePublished">Dec 28, 2016</time></p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <h2 id="software">Software</h2>
+<ul>
+  <li><a href="https://shibboleth.net/products/service-provider.html">Shibboleth SP</a> - Service Provider software to which allows to configure SSO-enabled web-sites/web-applications.</li>
+  <li><a href="https://httpd.apache.org/">Apache Web Server</a> - web server which will be used to expose our web sites and enable SSO for them. Shibboleth SP can integrate with either Apache or IIS - it cannot work standalone.</li>
+  <li><a href="https://www.macports.org/">MacPorts</a> - tool which allows installing different kind of Open Source software on you Mac. MacPorts is a legacy tool - <a href="http://brew.sh/">HomeBrew</a> is a much better, easy to use, modern tool. Unfortunately, ShibbolethSP package right now (Dec 2016) is assembled for Mac Ports only.</li>
+  <li><a href="http://docs.oracle.com/javadb/10.6.2.1/adminguide/cadminsslkeys.html">JDK keytool</a> - utility which comes with Oracle JDK and allows creating private keys, self-signed, certs, public certs, key stores, etc. It can be considered as an alternative of <a href="https://www.openssl.org/">OpenSSL</a>.</li>
+</ul>
+
+<h2 id="installation-steps">Installation steps</h2>
+
+<h3 id="install-shibboleth-sp">1. Install Shibboleth SP</h3>
+<ul>
+  <li>Download and install MacPorts from <a href="https://www.macports.org/install.php">https://www.macports.org/install.php</a></li>
+  <li>Install Shibboleth SP using instructions from <a href="https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPMacPortInstallation">NativeSPMacPortInstallation</a></li>
+</ul>
+
+<hr />
+<h3 id="create-private-key-and-public-cert">2. Create Private key and Public Cert</h3>
+<ul>
+  <li>Create self-signed certificate:
+    <div class="highlighter-rouge"><pre class="highlight"><code>keytool -genkey -keyalg RSA -alias local-dev -keystore local-dev.jks -validity 365 -keysize 2048
+</code></pre>
+    </div>
+  </li>
+  <li>Export public certificate:
+    <div class="highlighter-rouge"><pre class="highlight"><code>keytool -export -keystore local-dev.jks -alias local-dev -file local-dev.cer
+</code></pre>
+    </div>
+  </li>
+  <li>Export private key:
+    <div class="highlighter-rouge"><pre class="highlight"><code>keytool -importkeystore -srckeystore local-dev.jks -destkeystore local-dev.p12 -deststoretype PKCS12
+</code></pre>
+    </div>
+  </li>
+</ul>
+
+<p>As a result we got  a pare of public cert and private key which we can use for SSL on Apache.</p>
+
+<hr />
+<h3 id="configure-apache">3. Configure Apache</h3>
+
+<p>Apache2 on macOS configuration files are located at <code class="highlighter-rouge">/etc/apache2</code>. By default only http is available and default port is 80.</p>
+
+<h4 id="configure-virtual-host">3.1 Configure Virtual Host</h4>
+<ul>
+  <li>Uncomment line <code class="highlighter-rouge">Include conf/extra/httpd-vhosts.conf</code> in <code class="highlighter-rouge">/etc/apache2/httpd.conf</code> (Apache config file)</li>
+  <li>Create virtual host by updating httpd-vhosts.conf config file:</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>  &lt;VirtualHost *:80&gt;
+   ServerAdmin webmaster@sp.mogikanensoftware.com
+   DocumentRoot "/Library/WebServer/Documents/sp.mogikanensoftware.com"
+   ServerName sp.mogikanensoftware.com
+   ServerAlias www.sp.mogikanensoftware.com
+   ErrorLog "/private/var/log/apache2/sp.mogikanensoftware.com-error_log"
+   CustomLog "/private/var/log/apache2/sp.mogikanensoftware.com-access_log" common
+  &lt;/VirtualHost&gt;
+</code></pre>
+</div>
+
+<ul>
+  <li>Create folder <code class="highlighter-rouge">sp.mogikanensoftware.com</code> for virtual host at <code class="highlighter-rouge">/Library/WebServer/Documents/</code>;</li>
+  <li>Create directory <code class="highlighter-rouge">secure</code> inside folder <code class="highlighter-rouge">/Library/WebServer/Documents/sp.mogikanensoftware.com</code>. It will be the secured zone;</li>
+  <li>Place one index.html inside both root folder of virtual host and <code class="highlighter-rouge">secure</code> folder.</li>
+</ul>
+
+<h4 id="configure-ssl">3.2 Configure SSL</h4>
+<p>Will use previously created private and public key for SSL.</p>
+<ul>
+  <li>Copy files <code class="highlighter-rouge">local-dev.cer</code> and <code class="highlighter-rouge">local-dev.p12</code> to folder <code class="highlighter-rouge">/etc/apache2</code></li>
+  <li>Rename public cert file <code class="highlighter-rouge">local-dev.cer</code> to <code class="highlighter-rouge">server.crt</code>;</li>
+  <li>Rename private key file <code class="highlighter-rouge">local-dev.p12</code> to <code class="highlighter-rouge">server.key</code>;</li>
+  <li>Add/or uncomment 2 Apache plugins/mods in <code class="highlighter-rouge">/etc/apache2/httpd.conf</code>:</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>LoadModule socache_shmcb_module libexec/apache2/mod_socache_shmcb.so
+LoadModule ssl_module libexec/apache2/mod_ssl.so
+</code></pre>
+</div>
+
+<ul>
+  <li>Uncomment line <code class="highlighter-rouge">Include /private/etc/apache2/extra/httpd-ssl.conf</code> in <code class="highlighter-rouge">/etc/apache2/httpd.conf</code></li>
+  <li>Update <code class="highlighter-rouge">httpd-ssl.conf</code> config to configure SSL for the virtual host:</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>DocumentRoot "/Library/WebServer/Documents/sp.mogikanensoftware.com"
+ServerName sp.mogikanensoftware.com:443
+</code></pre>
+</div>
+
+<ul>
+  <li>Please, verify and confirm that the following lines are uncommented and point to the correct files (our key and cert):</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>SSLCertificateFile "/private/etc/apache2/server.crt"
+SLCertificateKeyFile "/private/etc/apache2/server.key"
+</code></pre>
+</div>
+
+<h4 id="configure-shibboleth-pluginmod">3.3 Configure Shibboleth plugin/mod</h4>
+<ul>
+  <li>Create folder <code class="highlighter-rouge">shibboleth-conf</code> inside <code class="highlighter-rouge">/private/etc/apache2/extra/</code>;</li>
+  <li>Locate Shibboleth SP installed folder: <code class="highlighter-rouge">/opt/local/etc/shibboleth</code>;</li>
+  <li>Copy <code class="highlighter-rouge">apache24.config</code> file from Shibboleth SP folder to folder <code class="highlighter-rouge">/private/etc/apache2/extra/shibboleth-conf</code>;</li>
+  <li>Enable Shibboleth SP and Apache integration:</li>
+  <li>Modify file <code class="highlighter-rouge">/etc/apache2/httpd.conf</code> - add line:
+    <div class="highlighter-rouge"><pre class="highlight"><code>  Include /private/etc/apache2/extra/shibboleth-conf/apache24.config
+</code></pre>
+    </div>
+  </li>
+  <li>Enable Shibboleth SP plugin/mod by adding the following line to <code class="highlighter-rouge">apache24.config</code>:</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>  LoadModule mod_shib /opt/local/lib/shibboleth/mod_shib_24.so
+</code></pre>
+</div>
+
+<hr />
+<h3 id="configure-shibboleth-sp">4. Configure Shibboleth SP</h3>
+<p>It’s not a simple task to fully properly configure Shibboleth SP. A very basic example of such configuration is below:</p>
+<ul>
+  <li>Add/configure host in Request Mapper section:</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;RequestMapper type="Native"&gt;
+  &lt;RequestMap&gt;
+    &lt;Host name="sp.mogikanensoftware.com" scheme="http"&gt;
+      &lt;Path name="secure" authType="shibboleth" requireSession="true"
+        forceAuthn="true" /&gt;
+    &lt;/Host&gt;
+  &lt;/RequestMap&gt;
+&lt;/RequestMapper&gt;
+</code></pre>
+</div>
+
+<ul>
+  <li>Configure/modify Application Defaults to use our SP:</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>  &lt;ApplicationDefaults entityID="https://sp.mogikanensoftware.com/Shibboleth.sso"
+		REMOTE_USER="eppn persistent-id targeted-id"&gt;
+</code></pre>
+</div>
+
+<ul>
+  <li>
+    <p>Configure the appropriate Identity Provider:</p>
+
+    <ul>
+      <li>Specify IdP/SSO entityID:</li>
+    </ul>
+  </li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>  &lt;SSO entityID="http://eumadfsdev.extranetusermanager.com/adfs/services/trust"&gt;
+    SAML2 SAML1
+  &lt;/SSO&gt;
+</code></pre>
+</div>
+
+<ul>
+  <li>Configure IdP/SSO metadata:</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>  &lt;MetadataProvider type="XML" file="FederationMetadata.xml"&gt;
+  &lt;/MetadataProvider&gt;
+</code></pre>
+</div>
+
+<ul>
+  <li>Configure <code class="highlighter-rouge">CredentialResolver</code> using private key and public certs created using <code class="highlighter-rouge">keytool</code> in step #2 at the very beginning
+    <div class="highlighter-rouge"><pre class="highlight"><code>&lt;!-- Simple file-based resolver for using a single keypair. --&gt;
+&lt;CredentialResolver type="File" key="omd-local-dev.p12" certificate="omd-local-dev.cer"/&gt;
+</code></pre>
+    </div>
+  </li>
+  <li>Start/or restart Apache:
+    <div class="highlighter-rouge"><pre class="highlight"><code>./apachectl start
+</code></pre>
+    </div>
+    <p>or</p>
+    <div class="highlighter-rouge"><pre class="highlight"><code>./apachectl restart
+</code></pre>
+    </div>
+  </li>
+  <li>Start Shibboleth SP daemon:
+    <div class="highlighter-rouge"><pre class="highlight"><code>launchctl load -F /Library/LaunchDaemons/org.macports.shibd.plist
+</code></pre>
+    </div>
+  </li>
+  <li>
+    <p>Generate your SP Metadata file by hitting <a href="http://sp.mogikanensoftware.com/Shibboleth.sso/Metadata">http://sp.mogikanensoftware.com/Shibboleth.sso/Metadata</a></p>
+  </li>
+  <li>Share your SP Metadata file with your Identity Provider</li>
+</ul>
+
+<hr />
+<h3 id="final-steps">5. Final steps</h3>
+
+<ul>
+  <li>Confirm that the Identity Provider (SSO) your SP points to has successfully imported your SP Metadata;</li>
+  <li>Open public content of your virtual sites - <a href="https://sp.mogikanensoftware.com/index.html">https://sp.mogikanensoftware.com/index.html</a>. You should get the page without any security handling;</li>
+  <li>Open/try to access secured page - <a href="https://sp.mogikanensoftware.com/secure/index.html">https://sp.mogikanensoftware.com/secure/index.html</a>. You should be redirected to your Identity Provider Authentication process (login page);</li>
+  <li>Authenticate at your IdP. You will be redirected to your secured page;</li>
+  <li>Congratulations! We are done!</li>
+</ul>
+
+<hr />
+<h3 id="additional-notes">Additional notes</h3>
+<ul>
+  <li>The above  describe a simplified way of configuration;</li>
+  <li>In reality there might be multiple virtual sites,  multiple Identity Providers, etc.</li>
+  <li>It’s highly recommended to read the official <a href="https://wiki.shibboleth.net/confluence/display/SHIB2">Shibboleth SP documentation</a></li>
+</ul>
+
+<!-- Universal Code for Disqus  -->
+<div id="disqus_thread"></div>
+<script>
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    /*
+    var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+
+        s.src = '//https-mogikanen9-github-io.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+
+  </div>
+
+  
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">My Personal Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>
+            
+              My Personal Blog
+            
+            </li>
+          <li><a href="mailto:mogikanensoftware@gmail.com">mogikanensoftware@gmail.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/mogikanen9"><span class="icon icon--github"><svg viewBox="0 0 16 16" width="16px" height="16px"><path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/></svg>
+</span><span class="username">mogikanen9</span></a>
+
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/mogikanen9"><span class="icon icon--twitter"><svg viewBox="0 0 16 16" width="16px" height="16px"><path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/></svg>
+</span><span class="username">mogikanen9</span></a>
+
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>This blog is an attempt to dive into personal blogging related to software development.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

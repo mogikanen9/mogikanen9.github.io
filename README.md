@@ -1,2 +1,2 @@
 # mogikanen9.github.io
-My personal blog
+Personal blog: playground to test writing posts and using [Jekyll](https://jekyllrb.com).
