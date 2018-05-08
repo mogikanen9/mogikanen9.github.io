@@ -6,9 +6,9 @@
 </description>
     <link>https://mogikanen9.github.io/</link>
     <atom:link href="https://mogikanen9.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sat, 08 Apr 2017 21:34:48 -0400</pubDate>
-    <lastBuildDate>Sat, 08 Apr 2017 21:34:48 -0400</lastBuildDate>
-    <generator>Jekyll v3.2.1</generator>
+    <pubDate>Mon, 07 May 2018 21:51:45 -0400</pubDate>
+    <lastBuildDate>Mon, 07 May 2018 21:51:45 -0400</lastBuildDate>
+    <generator>Jekyll v3.8.1</generator>
     
       <item>
         <title>Spring Boot, JCache and Hazelcast!</title>
@@ -34,23 +34,23 @@
 
 &lt;h3 id=&quot;steps&quot;&gt;Steps&lt;/h3&gt;
 
-&lt;h4 id=&quot;configure-your-spring-boot-project&quot;&gt;1. Configure your Spring Boot project.&lt;/h4&gt;
+&lt;h4 id=&quot;1-configure-your-spring-boot-project&quot;&gt;1. Configure your Spring Boot project.&lt;/h4&gt;
 
-&lt;h4 id=&quot;add-caching-starter-to-your-spring-boot-project&quot;&gt;2. Add caching starter to your Spring Boot project:&lt;/h4&gt;
+&lt;h4 id=&quot;2-add-caching-starter-to-your-spring-boot-project&quot;&gt;2. Add caching starter to your Spring Boot project:&lt;/h4&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-xml&quot; data-lang=&quot;xml&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
     &lt;span class=&quot;nt&quot;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.springframework.boot&lt;span class=&quot;nt&quot;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
     &lt;span class=&quot;nt&quot;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;spring-boot-starter-cache&lt;span class=&quot;nt&quot;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
 &lt;span class=&quot;nt&quot;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h4 id=&quot;add-jcache-api-to-your-classpath&quot;&gt;3.  Add JCache API to your classpath:&lt;/h4&gt;
+&lt;h4 id=&quot;3--add-jcache-api-to-your-classpath&quot;&gt;3.  Add JCache API to your classpath:&lt;/h4&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-xml&quot; data-lang=&quot;xml&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
     &lt;span class=&quot;nt&quot;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;javax.cache&lt;span class=&quot;nt&quot;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
     &lt;span class=&quot;nt&quot;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;cache-api&lt;span class=&quot;nt&quot;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
 &lt;span class=&quot;nt&quot;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h4 id=&quot;add-hazelcast-to-the-classpath&quot;&gt;4.  Add Hazelcast to the classpath:&lt;/h4&gt;
+&lt;h4 id=&quot;4--add-hazelcast-to-the-classpath&quot;&gt;4.  Add Hazelcast to the classpath:&lt;/h4&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-xml&quot; data-lang=&quot;xml&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
     &lt;span class=&quot;nt&quot;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;com.hazelcast&lt;span class=&quot;nt&quot;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
@@ -58,12 +58,13 @@
     &lt;span class=&quot;nt&quot;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;3.7.4&lt;span class=&quot;nt&quot;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
 &lt;span class=&quot;nt&quot;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h4 id=&quot;specify-cache-type-and-jcache-provider-in-applicationproperties-configuration-file&quot;&gt;5.  Specify cache type and jcache provider in application.properties configuration file:&lt;/h4&gt;
+&lt;h4 id=&quot;5--specify-cache-type-and-jcache-provider-in-applicationproperties-configuration-file&quot;&gt;5.  Specify cache type and jcache provider in application.properties configuration file:&lt;/h4&gt;
 
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-properties&quot; data-lang=&quot;properties&quot;&gt;&lt;span class=&quot;py&quot;&gt;spring.cache.type&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;jcache&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-properties&quot; data-lang=&quot;properties&quot;&gt;&lt;span class=&quot;py&quot;&gt;spring.cache.type&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;jcache
+&lt;/span&gt;
 &lt;span class=&quot;py&quot;&gt;spring.cache.jcache.provider&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;com.hazelcast.cache.impl.HazelcastServerCachingProvider&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h4 id=&quot;add-hazelcastxml-to-the-classpath-and-define-your-cache-there-ex&quot;&gt;6.  Add hazelcast.xml to the classpath and define your cache there, ex.:&lt;/h4&gt;
+&lt;h4 id=&quot;6--add-hazelcastxml-to-the-classpath-and-define-your-cache-there-ex&quot;&gt;6.  Add hazelcast.xml to the classpath and define your cache there, ex.:&lt;/h4&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-xml&quot; data-lang=&quot;xml&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;hazelcast&lt;/span&gt;
 	&lt;span class=&quot;na&quot;&gt;xsi:schemaLocation=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://www.hazelcast.com/schema/config hazelcast-config-3.7.xsd&quot;&lt;/span&gt;
@@ -73,9 +74,9 @@
     &lt;span class=&quot;nt&quot;&gt;&amp;lt;/cache&amp;gt;&lt;/span&gt;
 &lt;span class=&quot;nt&quot;&gt;&amp;lt;/hazelcast&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h4 id=&quot;add-enablecaching-annotation-to-your-configuration-class&quot;&gt;7.  Add &lt;code class=&quot;highlighter-rouge&quot;&gt;@EnableCaching&lt;/code&gt; annotation to your configuration class.&lt;/h4&gt;
+&lt;h4 id=&quot;7--add-enablecaching-annotation-to-your-configuration-class&quot;&gt;7.  Add &lt;code class=&quot;highlighter-rouge&quot;&gt;@EnableCaching&lt;/code&gt; annotation to your configuration class.&lt;/h4&gt;
 
-&lt;h4 id=&quot;disable-auto-configuration-for-hazelcast-in-your-spring-boot-application-configuration-class&quot;&gt;8.  Disable auto configuration for Hazelcast in your Spring Boot application configuration class:&lt;/h4&gt;
+&lt;h4 id=&quot;8--disable-auto-configuration-for-hazelcast-in-your-spring-boot-application-configuration-class&quot;&gt;8.  Disable auto configuration for Hazelcast in your Spring Boot application configuration class:&lt;/h4&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;  
 &lt;span class=&quot;nd&quot;&gt;@SpringBootApplication&lt;/span&gt;
@@ -87,14 +88,14 @@
 	&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h4 id=&quot;use-jcachejsr107-annotation-to-annotate-your-cache-targets-ex&quot;&gt;9.  Use JCache(JSR107) annotation to annotate your cache targets, ex:&lt;/h4&gt;
+&lt;h4 id=&quot;9--use-jcachejsr107-annotation-to-annotate-your-cache-targets-ex&quot;&gt;9.  Use JCache(JSR107) annotation to annotate your cache targets, ex:&lt;/h4&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;EventService&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
 	&lt;span class=&quot;nd&quot;&gt;@CacheResult&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cacheName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;events&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
 	&lt;span class=&quot;n&quot;&gt;Event&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getById&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eventId&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h4 id=&quot;enjoy-caching&quot;&gt;10.  Enjoy caching!&lt;/h4&gt;
+&lt;h4 id=&quot;10--enjoy-caching&quot;&gt;10.  Enjoy caching!&lt;/h4&gt;
 
 &lt;h3 id=&quot;details-and-nuances&quot;&gt;Details and nuances&lt;/h3&gt;
 &lt;p&gt;If you add Hazelcast to the classpath of Spring Boot project, then Spring Boot &lt;a href=&quot;http://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-hazelcast.html&quot;&gt;automatically configures one Hazelcast instance&lt;/a&gt; in its context. We don’t need this instance - we need only JCache manager and provider to be initialized following standard JCache approach. That’s why we need step #8 - other wise will endup havenig 2 Hazelcast instances in our application:&lt;/p&gt;
@@ -157,46 +158,43 @@
 
 &lt;h2 id=&quot;installation-steps&quot;&gt;Installation steps&lt;/h2&gt;
 
-&lt;h3 id=&quot;install-shibboleth-sp&quot;&gt;1. Install Shibboleth SP&lt;/h3&gt;
+&lt;h3 id=&quot;1-install-shibboleth-sp&quot;&gt;1. Install Shibboleth SP&lt;/h3&gt;
 &lt;ul&gt;
   &lt;li&gt;Download and install MacPorts from &lt;a href=&quot;https://www.macports.org/install.php&quot;&gt;https://www.macports.org/install.php&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;Install Shibboleth SP using instructions from &lt;a href=&quot;https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPMacPortInstallation&quot;&gt;NativeSPMacPortInstallation&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;hr /&gt;
-&lt;h3 id=&quot;create-private-key-and-public-cert&quot;&gt;2. Create Private key and Public Cert&lt;/h3&gt;
+&lt;h3 id=&quot;2-create-private-key-and-public-cert&quot;&gt;2. Create Private key and Public Cert&lt;/h3&gt;
 &lt;ul&gt;
   &lt;li&gt;Create self-signed certificate:
-    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;keytool -genkey -keyalg RSA -alias local-dev -keystore local-dev.jks -validity 365 -keysize 2048
-&lt;/code&gt;&lt;/pre&gt;
-    &lt;/div&gt;
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;keytool -genkey -keyalg RSA -alias local-dev -keystore local-dev.jks -validity 365 -keysize 2048
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
   &lt;/li&gt;
   &lt;li&gt;Export public certificate:
-    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;keytool -export -keystore local-dev.jks -alias local-dev -file local-dev.cer
-&lt;/code&gt;&lt;/pre&gt;
-    &lt;/div&gt;
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;keytool -export -keystore local-dev.jks -alias local-dev -file local-dev.cer
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
   &lt;/li&gt;
   &lt;li&gt;Export private key:
-    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;keytool -importkeystore -srckeystore local-dev.jks -destkeystore local-dev.p12 -deststoretype PKCS12
-&lt;/code&gt;&lt;/pre&gt;
-    &lt;/div&gt;
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;keytool -importkeystore -srckeystore local-dev.jks -destkeystore local-dev.p12 -deststoretype PKCS12
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;As a result we got  a pare of public cert and private key which we can use for SSL on Apache.&lt;/p&gt;
 
 &lt;hr /&gt;
-&lt;h3 id=&quot;configure-apache&quot;&gt;3. Configure Apache&lt;/h3&gt;
+&lt;h3 id=&quot;3-configure-apache&quot;&gt;3. Configure Apache&lt;/h3&gt;
 
 &lt;p&gt;Apache2 on macOS configuration files are located at &lt;code class=&quot;highlighter-rouge&quot;&gt;/etc/apache2&lt;/code&gt;. By default only http is available and default port is 80.&lt;/p&gt;
 
-&lt;h4 id=&quot;configure-virtual-host&quot;&gt;3.1 Configure Virtual Host&lt;/h4&gt;
+&lt;h4 id=&quot;31-configure-virtual-host&quot;&gt;3.1 Configure Virtual Host&lt;/h4&gt;
 &lt;ul&gt;
   &lt;li&gt;Uncomment line &lt;code class=&quot;highlighter-rouge&quot;&gt;Include conf/extra/httpd-vhosts.conf&lt;/code&gt; in &lt;code class=&quot;highlighter-rouge&quot;&gt;/etc/apache2/httpd.conf&lt;/code&gt; (Apache config file)&lt;/li&gt;
   &lt;li&gt;Create virtual host by updating httpd-vhosts.conf config file:&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  &amp;lt;VirtualHost *:80&amp;gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  &amp;lt;VirtualHost *:80&amp;gt;
    ServerAdmin webmaster@sp.mogikanensoftware.com
    DocumentRoot &quot;/Library/WebServer/Documents/sp.mogikanensoftware.com&quot;
    ServerName sp.mogikanensoftware.com
@@ -204,8 +202,7 @@
    ErrorLog &quot;/private/var/log/apache2/sp.mogikanensoftware.com-error_log&quot;
    CustomLog &quot;/private/var/log/apache2/sp.mogikanensoftware.com-access_log&quot; common
   &amp;lt;/VirtualHost&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;ul&gt;
   &lt;li&gt;Create folder &lt;code class=&quot;highlighter-rouge&quot;&gt;sp.mogikanensoftware.com&lt;/code&gt; for virtual host at &lt;code class=&quot;highlighter-rouge&quot;&gt;/Library/WebServer/Documents/&lt;/code&gt;;&lt;/li&gt;
@@ -213,7 +210,7 @@
   &lt;li&gt;Place one index.html inside both root folder of virtual host and &lt;code class=&quot;highlighter-rouge&quot;&gt;secure&lt;/code&gt; folder.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h4 id=&quot;configure-ssl&quot;&gt;3.2 Configure SSL&lt;/h4&gt;
+&lt;h4 id=&quot;32-configure-ssl&quot;&gt;3.2 Configure SSL&lt;/h4&gt;
 &lt;p&gt;Will use previously created private and public key for SSL.&lt;/p&gt;
 &lt;ul&gt;
   &lt;li&gt;Copy files &lt;code class=&quot;highlighter-rouge&quot;&gt;local-dev.cer&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;local-dev.p12&lt;/code&gt; to folder &lt;code class=&quot;highlighter-rouge&quot;&gt;/etc/apache2&lt;/code&gt;&lt;/li&gt;
@@ -222,56 +219,51 @@
   &lt;li&gt;Add/or uncomment 2 Apache plugins/mods in &lt;code class=&quot;highlighter-rouge&quot;&gt;/etc/apache2/httpd.conf&lt;/code&gt;:&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;LoadModule socache_shmcb_module libexec/apache2/mod_socache_shmcb.so
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;LoadModule socache_shmcb_module libexec/apache2/mod_socache_shmcb.so
 LoadModule ssl_module libexec/apache2/mod_ssl.so
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;ul&gt;
   &lt;li&gt;Uncomment line &lt;code class=&quot;highlighter-rouge&quot;&gt;Include /private/etc/apache2/extra/httpd-ssl.conf&lt;/code&gt; in &lt;code class=&quot;highlighter-rouge&quot;&gt;/etc/apache2/httpd.conf&lt;/code&gt;&lt;/li&gt;
   &lt;li&gt;Update &lt;code class=&quot;highlighter-rouge&quot;&gt;httpd-ssl.conf&lt;/code&gt; config to configure SSL for the virtual host:&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;DocumentRoot &quot;/Library/WebServer/Documents/sp.mogikanensoftware.com&quot;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;DocumentRoot &quot;/Library/WebServer/Documents/sp.mogikanensoftware.com&quot;
 ServerName sp.mogikanensoftware.com:443
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;ul&gt;
   &lt;li&gt;Please, verify and confirm that the following lines are uncommented and point to the correct files (our key and cert):&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;SSLCertificateFile &quot;/private/etc/apache2/server.crt&quot;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;SSLCertificateFile &quot;/private/etc/apache2/server.crt&quot;
 SLCertificateKeyFile &quot;/private/etc/apache2/server.key&quot;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;h4 id=&quot;configure-shibboleth-pluginmod&quot;&gt;3.3 Configure Shibboleth plugin/mod&lt;/h4&gt;
+&lt;h4 id=&quot;33-configure-shibboleth-pluginmod&quot;&gt;3.3 Configure Shibboleth plugin/mod&lt;/h4&gt;
 &lt;ul&gt;
   &lt;li&gt;Create folder &lt;code class=&quot;highlighter-rouge&quot;&gt;shibboleth-conf&lt;/code&gt; inside &lt;code class=&quot;highlighter-rouge&quot;&gt;/private/etc/apache2/extra/&lt;/code&gt;;&lt;/li&gt;
   &lt;li&gt;Locate Shibboleth SP installed folder: &lt;code class=&quot;highlighter-rouge&quot;&gt;/opt/local/etc/shibboleth&lt;/code&gt;;&lt;/li&gt;
   &lt;li&gt;Copy &lt;code class=&quot;highlighter-rouge&quot;&gt;apache24.config&lt;/code&gt; file from Shibboleth SP folder to folder &lt;code class=&quot;highlighter-rouge&quot;&gt;/private/etc/apache2/extra/shibboleth-conf&lt;/code&gt;;&lt;/li&gt;
   &lt;li&gt;Enable Shibboleth SP and Apache integration:&lt;/li&gt;
   &lt;li&gt;Modify file &lt;code class=&quot;highlighter-rouge&quot;&gt;/etc/apache2/httpd.conf&lt;/code&gt; - add line:
-    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  Include /private/etc/apache2/extra/shibboleth-conf/apache24.config
-&lt;/code&gt;&lt;/pre&gt;
-    &lt;/div&gt;
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  Include /private/etc/apache2/extra/shibboleth-conf/apache24.config
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
   &lt;/li&gt;
   &lt;li&gt;Enable Shibboleth SP plugin/mod by adding the following line to &lt;code class=&quot;highlighter-rouge&quot;&gt;apache24.config&lt;/code&gt;:&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  LoadModule mod_shib /opt/local/lib/shibboleth/mod_shib_24.so
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  LoadModule mod_shib /opt/local/lib/shibboleth/mod_shib_24.so
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;hr /&gt;
-&lt;h3 id=&quot;configure-shibboleth-sp&quot;&gt;4. Configure Shibboleth SP&lt;/h3&gt;
+&lt;h3 id=&quot;4-configure-shibboleth-sp&quot;&gt;4. Configure Shibboleth SP&lt;/h3&gt;
 &lt;p&gt;It’s not a simple task to fully properly configure Shibboleth SP. A very basic example of such configuration is below:&lt;/p&gt;
 &lt;ul&gt;
   &lt;li&gt;Add/configure host in Request Mapper section:&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;RequestMapper type=&quot;Native&quot;&amp;gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;RequestMapper type=&quot;Native&quot;&amp;gt;
   &amp;lt;RequestMap&amp;gt;
     &amp;lt;Host name=&quot;sp.mogikanensoftware.com&quot; scheme=&quot;http&quot;&amp;gt;
       &amp;lt;Path name=&quot;secure&quot; authType=&quot;shibboleth&quot; requireSession=&quot;true&quot;
@@ -279,17 +271,15 @@ SLCertificateKeyFile &quot;/private/etc/apache2/server.key&quot;
     &amp;lt;/Host&amp;gt;
   &amp;lt;/RequestMap&amp;gt;
 &amp;lt;/RequestMapper&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;ul&gt;
   &lt;li&gt;Configure/modify Application Defaults to use our SP:&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  &amp;lt;ApplicationDefaults entityID=&quot;https://sp.mogikanensoftware.com/Shibboleth.sso&quot;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  &amp;lt;ApplicationDefaults entityID=&quot;https://sp.mogikanensoftware.com/Shibboleth.sso&quot;
 		REMOTE_USER=&quot;eppn persistent-id targeted-id&quot;&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
@@ -301,41 +291,35 @@ SLCertificateKeyFile &quot;/private/etc/apache2/server.key&quot;
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  &amp;lt;SSO entityID=&quot;http://eumadfsdev.extranetusermanager.com/adfs/services/trust&quot;&amp;gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  &amp;lt;SSO entityID=&quot;http://eumadfsdev.extranetusermanager.com/adfs/services/trust&quot;&amp;gt;
     SAML2 SAML1
   &amp;lt;/SSO&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;ul&gt;
   &lt;li&gt;Configure IdP/SSO metadata:&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  &amp;lt;MetadataProvider type=&quot;XML&quot; file=&quot;FederationMetadata.xml&quot;&amp;gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  &amp;lt;MetadataProvider type=&quot;XML&quot; file=&quot;FederationMetadata.xml&quot;&amp;gt;
   &amp;lt;/MetadataProvider&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;ul&gt;
   &lt;li&gt;Configure &lt;code class=&quot;highlighter-rouge&quot;&gt;CredentialResolver&lt;/code&gt; using private key and public certs created using &lt;code class=&quot;highlighter-rouge&quot;&gt;keytool&lt;/code&gt; in step #2 at the very beginning
-    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;!-- Simple file-based resolver for using a single keypair. --&amp;gt;
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;!-- Simple file-based resolver for using a single keypair. --&amp;gt;
 &amp;lt;CredentialResolver type=&quot;File&quot; key=&quot;omd-local-dev.p12&quot; certificate=&quot;omd-local-dev.cer&quot;/&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-    &lt;/div&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
   &lt;/li&gt;
   &lt;li&gt;Start/or restart Apache:
-    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;./apachectl start
-&lt;/code&gt;&lt;/pre&gt;
-    &lt;/div&gt;
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;./apachectl start
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
     &lt;p&gt;or&lt;/p&gt;
-    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;./apachectl restart
-&lt;/code&gt;&lt;/pre&gt;
-    &lt;/div&gt;
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;./apachectl restart
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
   &lt;/li&gt;
   &lt;li&gt;Start Shibboleth SP daemon:
-    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;launchctl load -F /Library/LaunchDaemons/org.macports.shibd.plist
-&lt;/code&gt;&lt;/pre&gt;
-    &lt;/div&gt;
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;launchctl load -F /Library/LaunchDaemons/org.macports.shibd.plist
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;Generate your SP Metadata file by hitting &lt;a href=&quot;http://sp.mogikanensoftware.com/Shibboleth.sso/Metadata&quot;&gt;http://sp.mogikanensoftware.com/Shibboleth.sso/Metadata&lt;/a&gt;&lt;/p&gt;
@@ -344,7 +328,7 @@ SLCertificateKeyFile &quot;/private/etc/apache2/server.key&quot;
 &lt;/ul&gt;
 
 &lt;hr /&gt;
-&lt;h3 id=&quot;final-steps&quot;&gt;5. Final steps&lt;/h3&gt;
+&lt;h3 id=&quot;5-final-steps&quot;&gt;5. Final steps&lt;/h3&gt;
 
 &lt;ul&gt;
   &lt;li&gt;Confirm that the Identity Provider (SSO) your SP points to has successfully imported your SP Metadata;&lt;/li&gt;
@@ -422,7 +406,7 @@ which is a good starting point. Will use it as well - will jump right to section
 &lt;ul&gt;
   &lt;li&gt;Create empty Maven based project simple-hl7-parser using basic archetype;&lt;/li&gt;
   &lt;li&gt;Add HL7 dependencies:
-    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;..........................
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;..........................
 &amp;lt;properties&amp;gt;
       &amp;lt;hapi.version&amp;gt;2.2&amp;lt;/hapi.version&amp;gt;
   &amp;lt;/properties&amp;gt;
@@ -439,8 +423,7 @@ which is a good starting point. Will use it as well - will jump right to section
   &amp;lt;scope&amp;gt;compile&amp;lt;/scope&amp;gt;
 &amp;lt;/dependency&amp;gt;
 ..........................
-&lt;/code&gt;&lt;/pre&gt;
-    &lt;/div&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
   &lt;/li&gt;
   &lt;li&gt;Import project into the IDE.&lt;/li&gt;
 &lt;/ul&gt;
@@ -458,7 +441,7 @@ which is a good starting point. Will use it as well - will jump right to section
 
 &lt;p&gt;Below is a piece of sample code:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;HapiContext context = new DefaultHapiContext();
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;HapiContext context = new DefaultHapiContext();
 
 CanonicalModelClassFactory mcf = new CanonicalModelClassFactory(&quot;2.4&quot;);
 
@@ -467,8 +450,7 @@ context.setModelClassFactory(mcf);
 PipeParser parser = context.getPipeParser();
 
 ca.uhn.hl7v2.model.v24.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v24.message.ORU_R01) parser.parse(message);
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;The following things immediately pops to our eyes:&lt;/p&gt;
 &lt;ul&gt;
@@ -602,9 +584,8 @@ ca.uhn.hl7v2.model.v24.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v24.message.ORU
         <title>Cobertura and JaCoCo: using test coverage plugin</title>
         <description>&lt;p&gt;Recently I decided to configure a test coverage plugin for one of my pet projects to have a better visibility of my unit tests. At work we use &lt;a href=&quot;http://www.sonarqube.org/&quot;&gt;SonarQube&lt;/a&gt; - too much for my purpose. I immediately looked at Cobertura and its &lt;a href=&quot;http://www.mojohaus.org/cobertura-maven-plugin/&quot;&gt;Maven plugin&lt;/a&gt;. Several years ago I setup Cobertura for couple of real projects at our CI server and it worked great. The setup was straightforward and I started to enjoy my test coverage report. My happy time was short - once I started to use lambdas (introduced in Java 8) extensively the plugin started to struggle with analysis. The plugin failed to check those classes and generated a errors like:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;java.lang.IllegalArgumentException: INVOKESPECIAL/STATIC on interfaces require ASM 5
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;java.lang.IllegalArgumentException: INVOKESPECIAL/STATIC on interfaces require ASM 5
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;I was using version 2.7 which supposed to support Java 8. Once googled I found that I am not the only one who is facing those issues. People reported same issues at their &lt;a href=&quot;https://github.com/cobertura/cobertura/issues/166&quot;&gt;GitHub page&lt;/a&gt;&lt;/p&gt;
 
@@ -614,7 +595,7 @@ ca.uhn.hl7v2.model.v24.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v24.message.ORU
 
 &lt;p&gt;The final Maven plugin configuration is below.&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;build&amp;gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;build&amp;gt;
 	...
   &amp;lt;plugin&amp;gt;
     &amp;lt;groupId&amp;gt;org.jacoco&amp;lt;/groupId&amp;gt;
@@ -643,8 +624,7 @@ ca.uhn.hl7v2.model.v24.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v24.message.ORU
     &amp;lt;/plugins&amp;gt;
     ...
 &amp;lt;/build&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;!-- Universal Code for Disqus  --&gt;
 &lt;div id=&quot;disqus_thread&quot;&gt;&lt;/div&gt;
 &lt;script&gt;

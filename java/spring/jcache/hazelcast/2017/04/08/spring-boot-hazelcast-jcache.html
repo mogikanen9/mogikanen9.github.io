@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>Spring Boot, JCache and Hazelcast!</title>
-  <meta name="description" content="Introduction">
+  <meta name="description" content="Introduction This post is about using JCache API/Hazelcast implementation in Spring Boot application. This exercise is based on the sample from Hazelcast tea...">
 
   
   
@@ -90,23 +90,23 @@
 
 <h3 id="steps">Steps</h3>
 
-<h4 id="configure-your-spring-boot-project">1. Configure your Spring Boot project.</h4>
+<h4 id="1-configure-your-spring-boot-project">1. Configure your Spring Boot project.</h4>
 
-<h4 id="add-caching-starter-to-your-spring-boot-project">2. Add caching starter to your Spring Boot project:</h4>
+<h4 id="2-add-caching-starter-to-your-spring-boot-project">2. Add caching starter to your Spring Boot project:</h4>
 
 <figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
     <span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-cache<span class="nt">&lt;/artifactId&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span></code></pre></figure>
 
-<h4 id="add-jcache-api-to-your-classpath">3.  Add JCache API to your classpath:</h4>
+<h4 id="3--add-jcache-api-to-your-classpath">3.  Add JCache API to your classpath:</h4>
 
 <figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>javax.cache<span class="nt">&lt;/groupId&gt;</span>
     <span class="nt">&lt;artifactId&gt;</span>cache-api<span class="nt">&lt;/artifactId&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span></code></pre></figure>
 
-<h4 id="add-hazelcast-to-the-classpath">4.  Add Hazelcast to the classpath:</h4>
+<h4 id="4--add-hazelcast-to-the-classpath">4.  Add Hazelcast to the classpath:</h4>
 
 <figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>com.hazelcast<span class="nt">&lt;/groupId&gt;</span>
@@ -114,12 +114,13 @@
     <span class="nt">&lt;version&gt;</span>3.7.4<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span></code></pre></figure>
 
-<h4 id="specify-cache-type-and-jcache-provider-in-applicationproperties-configuration-file">5.  Specify cache type and jcache provider in application.properties configuration file:</h4>
+<h4 id="5--specify-cache-type-and-jcache-provider-in-applicationproperties-configuration-file">5.  Specify cache type and jcache provider in application.properties configuration file:</h4>
 
-<figure class="highlight"><pre><code class="language-properties" data-lang="properties"><span class="py">spring.cache.type</span><span class="p">=</span><span class="s">jcache</span>
+<figure class="highlight"><pre><code class="language-properties" data-lang="properties"><span class="py">spring.cache.type</span><span class="p">=</span><span class="s">jcache
+</span>
 <span class="py">spring.cache.jcache.provider</span><span class="p">=</span><span class="s">com.hazelcast.cache.impl.HazelcastServerCachingProvider</span></code></pre></figure>
 
-<h4 id="add-hazelcastxml-to-the-classpath-and-define-your-cache-there-ex">6.  Add hazelcast.xml to the classpath and define your cache there, ex.:</h4>
+<h4 id="6--add-hazelcastxml-to-the-classpath-and-define-your-cache-there-ex">6.  Add hazelcast.xml to the classpath and define your cache there, ex.:</h4>
 
 <figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;hazelcast</span>
 	<span class="na">xsi:schemaLocation=</span><span class="s">"http://www.hazelcast.com/schema/config hazelcast-config-3.7.xsd"</span>
@@ -129,9 +130,9 @@
     <span class="nt">&lt;/cache&gt;</span>
 <span class="nt">&lt;/hazelcast&gt;</span></code></pre></figure>
 
-<h4 id="add-enablecaching-annotation-to-your-configuration-class">7.  Add <code class="highlighter-rouge">@EnableCaching</code> annotation to your configuration class.</h4>
+<h4 id="7--add-enablecaching-annotation-to-your-configuration-class">7.  Add <code class="highlighter-rouge">@EnableCaching</code> annotation to your configuration class.</h4>
 
-<h4 id="disable-auto-configuration-for-hazelcast-in-your-spring-boot-application-configuration-class">8.  Disable auto configuration for Hazelcast in your Spring Boot application configuration class:</h4>
+<h4 id="8--disable-auto-configuration-for-hazelcast-in-your-spring-boot-application-configuration-class">8.  Disable auto configuration for Hazelcast in your Spring Boot application configuration class:</h4>
 
 <figure class="highlight"><pre><code class="language-java" data-lang="java">  
 <span class="nd">@SpringBootApplication</span>
@@ -143,14 +144,14 @@
 	<span class="o">}</span>
 <span class="o">}</span></code></pre></figure>
 
-<h4 id="use-jcachejsr107-annotation-to-annotate-your-cache-targets-ex">9.  Use JCache(JSR107) annotation to annotate your cache targets, ex:</h4>
+<h4 id="9--use-jcachejsr107-annotation-to-annotate-your-cache-targets-ex">9.  Use JCache(JSR107) annotation to annotate your cache targets, ex:</h4>
 
 <figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">EventService</span> <span class="o">{</span>
 	<span class="nd">@CacheResult</span><span class="o">(</span><span class="n">cacheName</span><span class="o">=</span><span class="s">"events"</span><span class="o">)</span>
 	<span class="n">Event</span> <span class="nf">getById</span><span class="o">(</span><span class="n">String</span> <span class="n">eventId</span><span class="o">);</span>
 <span class="o">}</span></code></pre></figure>
 
-<h4 id="enjoy-caching">10.  Enjoy caching!</h4>
+<h4 id="10--enjoy-caching">10.  Enjoy caching!</h4>
 
 <h3 id="details-and-nuances">Details and nuances</h3>
 <p>If you add Hazelcast to the classpath of Spring Boot project, then Spring Boot <a href="http://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-hazelcast.html">automatically configures one Hazelcast instance</a> in its context. We don’t need this instance - we need only JCache manager and provider to be initialized following standard JCache approach. That’s why we need step #8 - other wise will endup havenig 2 Hazelcast instances in our application:</p>
