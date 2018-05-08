@@ -70,9 +70,8 @@
   <div class="post-content" itemprop="articleBody">
     <p>Recently I decided to configure a test coverage plugin for one of my pet projects to have a better visibility of my unit tests. At work we use <a href="http://www.sonarqube.org/">SonarQube</a> - too much for my purpose. I immediately looked at Cobertura and its <a href="http://www.mojohaus.org/cobertura-maven-plugin/">Maven plugin</a>. Several years ago I setup Cobertura for couple of real projects at our CI server and it worked great. The setup was straightforward and I started to enjoy my test coverage report. My happy time was short - once I started to use lambdas (introduced in Java 8) extensively the plugin started to struggle with analysis. The plugin failed to check those classes and generated a errors like:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>java.lang.IllegalArgumentException: INVOKESPECIAL/STATIC on interfaces require ASM 5
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java.lang.IllegalArgumentException: INVOKESPECIAL/STATIC on interfaces require ASM 5
+</code></pre></div></div>
 
 <p>I was using version 2.7 which supposed to support Java 8. Once googled I found that I am not the only one who is facing those issues. People reported same issues at their <a href="https://github.com/cobertura/cobertura/issues/166">GitHub page</a></p>
 
@@ -82,7 +81,7 @@
 
 <p>The final Maven plugin configuration is below.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;build&gt;
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;build&gt;
 	...
   &lt;plugin&gt;
     &lt;groupId&gt;org.jacoco&lt;/groupId&gt;
@@ -111,8 +110,7 @@
     &lt;/plugins&gt;
     ...
 &lt;/build&gt;
-</code></pre>
-</div>
+</code></pre></div></div>
 <!-- Universal Code for Disqus  -->
 <div id="disqus_thread"></div>
 <script>
