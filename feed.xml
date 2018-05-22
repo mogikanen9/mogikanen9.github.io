@@ -4,10 +4,10 @@
     <title>My Personal Blog</title>
     <description>This blog is an attempt to dive into personal blogging related to software development.
 </description>
-    <link>http://localhost:4000/</link>
-    <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Mon, 21 May 2018 23:18:36 -0400</pubDate>
-    <lastBuildDate>Mon, 21 May 2018 23:18:36 -0400</lastBuildDate>
+    <link>https://mogikanen9.github.io/</link>
+    <atom:link href="https://mogikanen9.github.io/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Mon, 21 May 2018 23:25:32 -0400</pubDate>
+    <lastBuildDate>Mon, 21 May 2018 23:25:32 -0400</lastBuildDate>
     <generator>Jekyll v3.8.1</generator>
     
       <item>
@@ -228,8 +228,8 @@ module.exports &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&qu
 
 </description>
         <pubDate>Mon, 21 May 2018 12:07:00 -0400</pubDate>
-        <link>http://localhost:4000/spfx/react/karma/2018/05/21/spfx-karma-config.html</link>
-        <guid isPermaLink="true">http://localhost:4000/spfx/react/karma/2018/05/21/spfx-karma-config.html</guid>
+        <link>https://mogikanen9.github.io/spfx/react/karma/2018/05/21/spfx-karma-config.html</link>
+        <guid isPermaLink="true">https://mogikanen9.github.io/spfx/react/karma/2018/05/21/spfx-karma-config.html</guid>
         
         
         <category>spfx</category>
@@ -362,8 +362,8 @@ module.exports &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&qu
 
 </description>
         <pubDate>Sat, 08 Apr 2017 19:05:09 -0400</pubDate>
-        <link>http://localhost:4000/java/spring/jcache/hazelcast/2017/04/08/spring-boot-hazelcast-jcache.html</link>
-        <guid isPermaLink="true">http://localhost:4000/java/spring/jcache/hazelcast/2017/04/08/spring-boot-hazelcast-jcache.html</guid>
+        <link>https://mogikanen9.github.io/java/spring/jcache/hazelcast/2017/04/08/spring-boot-hazelcast-jcache.html</link>
+        <guid isPermaLink="true">https://mogikanen9.github.io/java/spring/jcache/hazelcast/2017/04/08/spring-boot-hazelcast-jcache.html</guid>
         
         
         <category>java</category>
@@ -603,8 +603,8 @@ SLCertificateKeyFile &quot;/private/etc/apache2/server.key&quot;
 
 </description>
         <pubDate>Wed, 28 Dec 2016 10:15:49 -0500</pubDate>
-        <link>http://localhost:4000/apache/shibboleth/2016/12/28/configure-shibboleth-sp-on-mac.html</link>
-        <guid isPermaLink="true">http://localhost:4000/apache/shibboleth/2016/12/28/configure-shibboleth-sp-on-mac.html</guid>
+        <link>https://mogikanen9.github.io/apache/shibboleth/2016/12/28/configure-shibboleth-sp-on-mac.html</link>
+        <guid isPermaLink="true">https://mogikanen9.github.io/apache/shibboleth/2016/12/28/configure-shibboleth-sp-on-mac.html</guid>
         
         
         <category>apache</category>
@@ -717,8 +717,8 @@ ca.uhn.hl7v2.model.v24.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v24.message.ORU
 
 </description>
         <pubDate>Tue, 04 Oct 2016 22:55:49 -0400</pubDate>
-        <link>http://localhost:4000/java/hapi/2016/10/04/first-steps-with-hapi-p2.html</link>
-        <guid isPermaLink="true">http://localhost:4000/java/hapi/2016/10/04/first-steps-with-hapi-p2.html</guid>
+        <link>https://mogikanen9.github.io/java/hapi/2016/10/04/first-steps-with-hapi-p2.html</link>
+        <guid isPermaLink="true">https://mogikanen9.github.io/java/hapi/2016/10/04/first-steps-with-hapi-p2.html</guid>
         
         
         <category>java</category>
@@ -800,8 +800,8 @@ ca.uhn.hl7v2.model.v24.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v24.message.ORU
 
 </description>
         <pubDate>Sun, 25 Sep 2016 22:55:49 -0400</pubDate>
-        <link>http://localhost:4000/java/hapi/2016/09/25/first-steps-with-hapi.html</link>
-        <guid isPermaLink="true">http://localhost:4000/java/hapi/2016/09/25/first-steps-with-hapi.html</guid>
+        <link>https://mogikanen9.github.io/java/hapi/2016/09/25/first-steps-with-hapi.html</link>
+        <guid isPermaLink="true">https://mogikanen9.github.io/java/hapi/2016/09/25/first-steps-with-hapi.html</guid>
         
         
         <category>java</category>
@@ -882,8 +882,8 @@ ca.uhn.hl7v2.model.v24.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v24.message.ORU
 
 </description>
         <pubDate>Fri, 23 Sep 2016 21:15:49 -0400</pubDate>
-        <link>http://localhost:4000/jekyll/update/2016/09/23/select-test-coverage-plugin.html</link>
-        <guid isPermaLink="true">http://localhost:4000/jekyll/update/2016/09/23/select-test-coverage-plugin.html</guid>
+        <link>https://mogikanen9.github.io/jekyll/update/2016/09/23/select-test-coverage-plugin.html</link>
+        <guid isPermaLink="true">https://mogikanen9.github.io/jekyll/update/2016/09/23/select-test-coverage-plugin.html</guid>
         
         
         <category>jekyll</category>
@@ -935,8 +935,8 @@ ca.uhn.hl7v2.model.v24.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v24.message.ORU
 
 </description>
         <pubDate>Tue, 20 Sep 2016 21:50:49 -0400</pubDate>
-        <link>http://localhost:4000/jekyll/update/2016/09/20/welcome-to-jekyll.html</link>
-        <guid isPermaLink="true">http://localhost:4000/jekyll/update/2016/09/20/welcome-to-jekyll.html</guid>
+        <link>https://mogikanen9.github.io/jekyll/update/2016/09/20/welcome-to-jekyll.html</link>
+        <guid isPermaLink="true">https://mogikanen9.github.io/jekyll/update/2016/09/20/welcome-to-jekyll.html</guid>
         
         
         <category>jekyll</category>
