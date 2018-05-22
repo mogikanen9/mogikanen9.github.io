@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>SharePoint Framework(SPFx). Custom Karma configuration for different test result and coverage reports.</title>
+  <title>SharePoint Framework (SPFx). Custom Karma configuration for different test result and coverage reports.</title>
   <meta name="description" content="Introduction This post will describe how to customize Karma configuration for SharePoint Framework (SPFx) web part projects with Office UI Fabric React creat...">
 
   
@@ -76,7 +76,7 @@
         <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title" itemprop="name headline">SharePoint Framework(SPFx). Custom Karma configuration for different test result and coverage reports.</h1>
+    <h1 class="post-title" itemprop="name headline">SharePoint Framework (SPFx). Custom Karma configuration for different test result and coverage reports.</h1>
     <p class="post-meta"><time datetime="2018-05-21T12:07:00-04:00" itemprop="datePublished">May 21, 2018</time></p>
   </header>
 
@@ -84,9 +84,9 @@
     <h3 id="introduction">Introduction</h3>
 <p>This post will describe how to customize <a href="http://karma-runner.github.io/2.0/index.html">Karma</a> configuration for <a href="https://docs.microsoft.com/en-us/sharepoint/dev/spfx/sharepoint-framework-overview">SharePoint Framework (SPFx)</a> web part projects with <a href="https://github.com/OfficeDev/office-ui-fabric-react">Office UI Fabric React</a>  created/generated with <a href="https://docs.microsoft.com/en-us/sharepoint/dev/spfx/toolchain/scaffolding-projects-using-yeoman-sharepoint-generator">Yoman SharePoint Generator</a> including:</p>
 <ul>
-  <li>Generate test result report in <a href="https://junit.org/">JUnit</a> format (helpful for <a href="https://docs.microsoft.com/en-us/vsts/build-release/tasks/test/publish-test-results?view=vsts">VSTS CI dashboard</a>)</li>
+  <li>Generate test result report in <a href="https://junit.org/">JUnit</a> format (ex.: for <a href="https://docs.microsoft.com/en-us/vsts/build-release/tasks/test/publish-test-results?view=vsts">VSTS CI dashboard</a>)</li>
   <li>Generate test coverage report in text (console) format</li>
-  <li>Generate test coverage report in <a href="http://cobertura.github.io/cobertura/">Cobertura</a> format (helpful for <a href="https://docs.microsoft.com/en-us/vsts/build-release/tasks/test/publish-code-coverage-results?view=vsts">VSTS CI dashboard</a>)</li>
+  <li>Generate test coverage report in <a href="http://cobertura.github.io/cobertura/">Cobertura</a> format (ex.: for <a href="https://docs.microsoft.com/en-us/vsts/build-release/tasks/test/publish-code-coverage-results?view=vsts">VSTS CI dashboard</a>)</li>
 </ul>
 
 <p><br /></p>
@@ -105,7 +105,7 @@
 <p>You should get list of successfully executed uni tests, ex:</p>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">Start:
-  HelooWorld init <span class="nb">test</span>
+  HelloWorld init <span class="nb">test</span>
     √ simple <span class="nb">test
 
 </span>Finished <span class="k">in </span>0.016 secs / 0.001 secs
@@ -150,7 +150,7 @@ inside <code class="highlighter-rouge">node_modules</code> folder:</p>
 
 <p>The following steps needs to be done to enable JUnit reporter in Karma:</p>
 <ul>
-  <li>add JUnit reporter to the list of configured reporters</li>
+  <li>add JUnit reporter to the list of configured reporters (default are <code class="highlighter-rouge">test-result</code>, <code class="highlighter-rouge">mocha-clean</code>, <code class="highlighter-rouge">coverage</code>)</li>
   <li>provide JUnit reporter configuration</li>
   <li>add karma-junit-reporter plugin to the list of configured plugins</li>
 </ul>
@@ -183,7 +183,7 @@ inside <code class="highlighter-rouge">node_modules</code> folder:</p>
 of preconfigured coverage reporters (<code class="highlighter-rouge">html</code> and <code class="highlighter-rouge">json</code>). Add the following configuration to karma.config.js:</p>
 
 <figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">coverageReporter</span><span class="p">:</span> <span class="p">{</span>                        
-            <span class="nl">dir</span><span class="p">:</span> <span class="s1">'temp</span><span class="err">\\</span><span class="s1">coverage'</span><span class="p">,</span>
+            <span class="nl">dir</span><span class="p">:</span> <span class="s1">'temp/coverage'</span><span class="p">,</span>
             <span class="nx">reporters</span><span class="p">:</span> <span class="p">[</span>
                 <span class="p">{</span> <span class="na">type</span><span class="p">:</span> <span class="s1">'html'</span><span class="p">,</span> <span class="na">subdir</span><span class="p">:</span> <span class="s1">'js'</span> <span class="p">},</span>
                 <span class="p">{</span> <span class="na">type</span><span class="p">:</span> <span class="s1">'json'</span><span class="p">,</span> <span class="na">subdir</span><span class="p">:</span> <span class="s1">'./'</span><span class="p">,</span> <span class="na">file</span><span class="p">:</span> <span class="s1">'js-coverage.json'</span> <span class="p">},</span>
@@ -250,7 +250,7 @@ module.exports <span class="o">=</span> <span class="k">function</span> <span cl
         reporters: <span class="o">[</span><span class="s1">'test-result'</span>, <span class="s1">'mocha-clean'</span>, <span class="s1">'coverage'</span>, <span class="s1">'junit'</span><span class="o">]</span>,
 
         coverageReporter: <span class="o">{</span>                        
-            <span class="nb">dir</span>: <span class="s1">'temp\\coverage'</span>,
+            <span class="nb">dir</span>: <span class="s1">'temp/coverage'</span>,
             reporters: <span class="o">[</span>
                 <span class="o">{</span> <span class="nb">type</span>: <span class="s1">'html'</span>, subdir: <span class="s1">'js'</span> <span class="o">}</span>,
                 <span class="o">{</span> <span class="nb">type</span>: <span class="s1">'json'</span>, subdir: <span class="s1">'./'</span>, file: <span class="s1">'js-coverage.json'</span> <span class="o">}</span>,
