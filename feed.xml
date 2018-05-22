@@ -6,18 +6,18 @@
 </description>
     <link>https://mogikanen9.github.io/</link>
     <atom:link href="https://mogikanen9.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Mon, 21 May 2018 23:28:15 -0400</pubDate>
-    <lastBuildDate>Mon, 21 May 2018 23:28:15 -0400</lastBuildDate>
+    <pubDate>Tue, 22 May 2018 09:43:36 -0400</pubDate>
+    <lastBuildDate>Tue, 22 May 2018 09:43:36 -0400</lastBuildDate>
     <generator>Jekyll v3.8.1</generator>
     
       <item>
-        <title>SharePoint Framework(SPFx). Custom Karma configuration for different test result and coverage reports.</title>
+        <title>SharePoint Framework (SPFx). Custom Karma configuration for different test result and coverage reports.</title>
         <description>&lt;h3 id=&quot;introduction&quot;&gt;Introduction&lt;/h3&gt;
 &lt;p&gt;This post will describe how to customize &lt;a href=&quot;http://karma-runner.github.io/2.0/index.html&quot;&gt;Karma&lt;/a&gt; configuration for &lt;a href=&quot;https://docs.microsoft.com/en-us/sharepoint/dev/spfx/sharepoint-framework-overview&quot;&gt;SharePoint Framework (SPFx)&lt;/a&gt; web part projects with &lt;a href=&quot;https://github.com/OfficeDev/office-ui-fabric-react&quot;&gt;Office UI Fabric React&lt;/a&gt;  created/generated with &lt;a href=&quot;https://docs.microsoft.com/en-us/sharepoint/dev/spfx/toolchain/scaffolding-projects-using-yeoman-sharepoint-generator&quot;&gt;Yoman SharePoint Generator&lt;/a&gt; including:&lt;/p&gt;
 &lt;ul&gt;
-  &lt;li&gt;Generate test result report in &lt;a href=&quot;https://junit.org/&quot;&gt;JUnit&lt;/a&gt; format (helpful for &lt;a href=&quot;https://docs.microsoft.com/en-us/vsts/build-release/tasks/test/publish-test-results?view=vsts&quot;&gt;VSTS CI dashboard&lt;/a&gt;)&lt;/li&gt;
+  &lt;li&gt;Generate test result report in &lt;a href=&quot;https://junit.org/&quot;&gt;JUnit&lt;/a&gt; format (ex.: for &lt;a href=&quot;https://docs.microsoft.com/en-us/vsts/build-release/tasks/test/publish-test-results?view=vsts&quot;&gt;VSTS CI dashboard&lt;/a&gt;)&lt;/li&gt;
   &lt;li&gt;Generate test coverage report in text (console) format&lt;/li&gt;
-  &lt;li&gt;Generate test coverage report in &lt;a href=&quot;http://cobertura.github.io/cobertura/&quot;&gt;Cobertura&lt;/a&gt; format (helpful for &lt;a href=&quot;https://docs.microsoft.com/en-us/vsts/build-release/tasks/test/publish-code-coverage-results?view=vsts&quot;&gt;VSTS CI dashboard&lt;/a&gt;)&lt;/li&gt;
+  &lt;li&gt;Generate test coverage report in &lt;a href=&quot;http://cobertura.github.io/cobertura/&quot;&gt;Cobertura&lt;/a&gt; format (ex.: for &lt;a href=&quot;https://docs.microsoft.com/en-us/vsts/build-release/tasks/test/publish-code-coverage-results?view=vsts&quot;&gt;VSTS CI dashboard&lt;/a&gt;)&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
@@ -36,7 +36,7 @@
 &lt;p&gt;You should get list of successfully executed uni tests, ex:&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;Start:
-  HelooWorld init &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;
+  HelloWorld init &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;
     √ simple &lt;span class=&quot;nb&quot;&gt;test
 
 &lt;/span&gt;Finished &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;0.016 secs / 0.001 secs
@@ -81,7 +81,7 @@ inside &lt;code class=&quot;highlighter-rouge&quot;&gt;node_modules&lt;/code&gt;
 
 &lt;p&gt;The following steps needs to be done to enable JUnit reporter in Karma:&lt;/p&gt;
 &lt;ul&gt;
-  &lt;li&gt;add JUnit reporter to the list of configured reporters&lt;/li&gt;
+  &lt;li&gt;add JUnit reporter to the list of configured reporters (default are &lt;code class=&quot;highlighter-rouge&quot;&gt;test-result&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;mocha-clean&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;coverage&lt;/code&gt;)&lt;/li&gt;
   &lt;li&gt;provide JUnit reporter configuration&lt;/li&gt;
   &lt;li&gt;add karma-junit-reporter plugin to the list of configured plugins&lt;/li&gt;
 &lt;/ul&gt;
@@ -114,7 +114,7 @@ inside &lt;code class=&quot;highlighter-rouge&quot;&gt;node_modules&lt;/code&gt;
 of preconfigured coverage reporters (&lt;code class=&quot;highlighter-rouge&quot;&gt;html&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;json&lt;/code&gt;). Add the following configuration to karma.config.js:&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;nx&quot;&gt;coverageReporter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;                        
-            &lt;span class=&quot;nl&quot;&gt;dir&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'temp&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\\&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;coverage'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+            &lt;span class=&quot;nl&quot;&gt;dir&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'temp/coverage'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
             &lt;span class=&quot;nx&quot;&gt;reporters&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
                 &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'html'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;subdir&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'js'&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
                 &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'json'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;subdir&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'./'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;file&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'js-coverage.json'&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
@@ -181,7 +181,7 @@ module.exports &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&qu
         reporters: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'test-result'&lt;/span&gt;, &lt;span class=&quot;s1&quot;&gt;'mocha-clean'&lt;/span&gt;, &lt;span class=&quot;s1&quot;&gt;'coverage'&lt;/span&gt;, &lt;span class=&quot;s1&quot;&gt;'junit'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;,
 
         coverageReporter: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;                        
-            &lt;span class=&quot;nb&quot;&gt;dir&lt;/span&gt;: &lt;span class=&quot;s1&quot;&gt;'temp\\coverage'&lt;/span&gt;,
+            &lt;span class=&quot;nb&quot;&gt;dir&lt;/span&gt;: &lt;span class=&quot;s1&quot;&gt;'temp/coverage'&lt;/span&gt;,
             reporters: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
                 &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;type&lt;/span&gt;: &lt;span class=&quot;s1&quot;&gt;'html'&lt;/span&gt;, subdir: &lt;span class=&quot;s1&quot;&gt;'js'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,
                 &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;type&lt;/span&gt;: &lt;span class=&quot;s1&quot;&gt;'json'&lt;/span&gt;, subdir: &lt;span class=&quot;s1&quot;&gt;'./'&lt;/span&gt;, file: &lt;span class=&quot;s1&quot;&gt;'js-coverage.json'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,
