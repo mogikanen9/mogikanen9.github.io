@@ -6,9 +6,154 @@
 </description>
     <link>https://mogikanen9.github.io/</link>
     <atom:link href="https://mogikanen9.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Tue, 22 May 2018 09:43:36 -0400</pubDate>
-    <lastBuildDate>Tue, 22 May 2018 09:43:36 -0400</lastBuildDate>
+    <pubDate>Sat, 26 Jan 2019 16:29:16 -0500</pubDate>
+    <lastBuildDate>Sat, 26 Jan 2019 16:29:16 -0500</lastBuildDate>
     <generator>Jekyll v3.8.1</generator>
+    
+      <item>
+        <title>Maven, Azure DevOps Pipelines and Artifacts.</title>
+        <description>&lt;h3 id=&quot;introduction&quot;&gt;Introduction&lt;/h3&gt;
+&lt;p&gt;This post will describe how to setup Maven project in Azure DevOps CI, build and deploy its artifact to DevOps Artifacts.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h3 id=&quot;steps&quot;&gt;Steps&lt;/h3&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h4 id=&quot;1-setup-project-in-github&quot;&gt;1. Setup project in GitHub&lt;/h4&gt;
+&lt;p&gt;Create a new Maven project using Maven Quickstart Archetype:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;mvn archetype:generate &lt;span class=&quot;nt&quot;&gt;-DarchetypeGroupId&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;org.apache.maven.archetypes &lt;span class=&quot;nt&quot;&gt;-DarchetypeArtifactId&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;maven-archetype-quickstart &lt;span class=&quot;nt&quot;&gt;-DarchetypeVersion&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1.4&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h4 id=&quot;2-create-azure-devops-project&quot;&gt;2. Create Azure DevOps project&lt;/h4&gt;
+&lt;p&gt;Create a new project in Azure DevOps, ex: &lt;a href=&quot;https://dev.azure.com/mogikanensoftware/Maven%20Demos&quot;&gt;https://dev.azure.com/mogikanensoftware/Maven%20Demos&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h4 id=&quot;3-create-azure-devops-build-pipeline&quot;&gt;3. Create Azure DevOps build pipeline&lt;/h4&gt;
+&lt;p&gt;Configure Azure DevOps CI pipeline:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Use “New pipeleine” in “Pipilenes -&amp;gt; Builds” in Azure DevOps project.&lt;/li&gt;
+  &lt;li&gt;Connect to GitHub and select your repo. You may want to install Azure DevOps GitHub app and grant access to your GitHub repo.&lt;/li&gt;
+  &lt;li&gt;Select “Maven” in “Configure your pipeline” step.&lt;/li&gt;
+  &lt;li&gt;Create new pipeline and push &lt;code class=&quot;highlighter-rouge&quot;&gt;azure-pipelines.yml&lt;/code&gt; to your repo to keep it alogn with the source code and run build.&lt;/li&gt;
+  &lt;li&gt;As the result you will get:
+    &lt;ol&gt;
+      &lt;li&gt;CI pipeline configued in Azure DevOps&lt;/li&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;azure-pipelines.yml&lt;/code&gt; config in your repo, ex:&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;trigger:
+- master
+
+pool:
+  vmImage: &lt;span class=&quot;s1&quot;&gt;'Ubuntu-16.04'&lt;/span&gt;
+
+steps:
+- task: Maven@3
+  inputs:
+    mavenPomFile: &lt;span class=&quot;s1&quot;&gt;'simple-lib/pom.xml'&lt;/span&gt;
+    mavenOptions: &lt;span class=&quot;s1&quot;&gt;'-Xmx3072m'&lt;/span&gt;
+    javaHomeOption: &lt;span class=&quot;s1&quot;&gt;'JDKVersion'&lt;/span&gt;
+    jdkVersionOption: &lt;span class=&quot;s1&quot;&gt;'1.11'&lt;/span&gt;
+    jdkArchitectureOption: &lt;span class=&quot;s1&quot;&gt;'x64'&lt;/span&gt;
+    publishJUnitResults: &lt;span class=&quot;nb&quot;&gt;false
+    &lt;/span&gt;testResultsFiles: &lt;span class=&quot;s1&quot;&gt;'**/surefire-reports/TEST-*.xml'&lt;/span&gt;
+    goals: &lt;span class=&quot;s1&quot;&gt;'package'&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h4 id=&quot;4-create-feed-in-artifacts&quot;&gt;4. Create feed in Artifacts&lt;/h4&gt;
+&lt;ul&gt;
+  &lt;li&gt;Azure DevOps Artifacts have a concept of feeds - they can be used for differnet purposes, have differnet access permissions, etc. Currently, the feeds support Maven, Gradle, NuGet, NPM, Python and Universal. It means they will act like the appropriate repositories - Maven repo in my example.&lt;/li&gt;
+  &lt;li&gt;Use “Artifcacts -&amp;gt; New Feed” to create new feed: provide name, visibility/access and public source package settings. (I used “simple-demo-feed”).&lt;/li&gt;
+  &lt;li&gt;Use “Connect to feed” link to see conectivity option depending on your technology.&lt;/li&gt;
+  &lt;li&gt;Setting for my “simple-demo-feed” Maven repo are below:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt; &amp;lt;repository&amp;gt;
+  &amp;lt;&lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;dev-azure-com-mogikanensoftware-simple-demo-feed&amp;lt;/id&amp;gt;
+  &amp;lt;url&amp;gt;https://pkgs.dev.azure.com/mogikanensoftware/_packaging/simple-demo-feed/maven/v1&amp;lt;/url&amp;gt;
+  &amp;lt;releases&amp;gt;
+    &amp;lt;enabled&amp;gt;true&amp;lt;/enabled&amp;gt;
+  &amp;lt;/releases&amp;gt;
+  &amp;lt;snapshots&amp;gt;
+    &amp;lt;enabled&amp;gt;true&amp;lt;/enabled&amp;gt;
+  &amp;lt;/snapshots&amp;gt;
+&amp;lt;/repository&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h4 id=&quot;5-update-ci-pipeline-to-deploy-to-artifacts&quot;&gt;5. Update CI pipeline to deploy to Artifacts&lt;/h4&gt;
+&lt;ul&gt;
+  &lt;li&gt;In order to access &lt;code class=&quot;highlighter-rouge&quot;&gt;simple-demo-feed&lt;/code&gt; Maven repo from other projects on your computer you need to generate Maven credentials for this repo by using “COnnect to feed -&amp;gt; Maven -&amp;gt; Generate Maven credentials” option. The credentails will be valid for 90 days. Currently there is no way to change this settings.&lt;/li&gt;
+  &lt;li&gt;No need to use credentials in your CI pipeline since Azure DevOps environment automatically grants access for feeds inside the environment - there is one catch though: &lt;code class=&quot;highlighter-rouge&quot;&gt;mavenAuthenticateFeed: true&lt;/code&gt; option must be setup in Maven Task of &lt;code class=&quot;highlighter-rouge&quot;&gt;azure-piplenies.yml&lt;/code&gt;, ex:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;trigger:
+- master
+
+pool:
+  vmImage: &lt;span class=&quot;s1&quot;&gt;'Ubuntu-16.04'&lt;/span&gt;
+
+steps:
+- task: Maven@3
+  inputs:
+    mavenPomFile: &lt;span class=&quot;s1&quot;&gt;'simple-lib/pom.xml'&lt;/span&gt;
+    mavenOptions: &lt;span class=&quot;s1&quot;&gt;'-Xmx3072m'&lt;/span&gt;
+    javaHomeOption: &lt;span class=&quot;s1&quot;&gt;'JDKVersion'&lt;/span&gt;
+    jdkVersionOption: &lt;span class=&quot;s1&quot;&gt;'1.11'&lt;/span&gt;
+    jdkArchitectureOption: &lt;span class=&quot;s1&quot;&gt;'x64'&lt;/span&gt;
+    mavenAuthenticateFeed: &lt;span class=&quot;nb&quot;&gt;true
+    &lt;/span&gt;publishJUnitResults: &lt;span class=&quot;nb&quot;&gt;false
+    &lt;/span&gt;testResultsFiles: &lt;span class=&quot;s1&quot;&gt;'**/surefire-reports/TEST-*.xml'&lt;/span&gt;
+    goals: &lt;span class=&quot;s1&quot;&gt;'deploy'&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;As the result upon successfull build run an the artifact appears in feed and is available for reference in other Maven and/or Gradle projects as standard Maven repo.&lt;/p&gt;
+
+&lt;p&gt;References:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://docs.microsoft.com/en-us/azure/devops/pipelines/artifacts/maven?toc=%2Fazure%2Fdevops%2Fartifacts%2Ftoc.json&amp;amp;view=azdevops#&quot;&gt;Set up Azure Pipelines and Maven)&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://docs.microsoft.com/en-us/azure/devops/artifacts/&quot;&gt;Azure DevOps Artifacts&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/mogikanen9/blog-demo-projects/edit/master/simple-lib/.gitignore&quot;&gt;Demo project source code&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;!-- Universal Code for Disqus  --&gt;&lt;/p&gt;
+&lt;div id=&quot;disqus_thread&quot;&gt;&lt;/div&gt;
+&lt;script&gt;
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    /*
+    var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+
+        s.src = '//https-mogikanen9-github-io.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+&lt;/script&gt;
+
+&lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
+
+</description>
+        <pubDate>Sat, 26 Jan 2019 10:44:19 -0500</pubDate>
+        <link>https://mogikanen9.github.io/devops/ci/2019/01/26/azure-devops-maven-artifacts.html</link>
+        <guid isPermaLink="true">https://mogikanen9.github.io/devops/ci/2019/01/26/azure-devops-maven-artifacts.html</guid>
+        
+        
+        <category>devops</category>
+        
+        <category>ci</category>
+        
+      </item>
     
       <item>
         <title>SharePoint Framework (SPFx). Custom Karma configuration for different test result and coverage reports.</title>
