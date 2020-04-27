@@ -6,9 +6,234 @@
 </description>
     <link>https://mogikanen9.github.io/</link>
     <atom:link href="https://mogikanen9.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sat, 26 Jan 2019 16:29:16 -0500</pubDate>
-    <lastBuildDate>Sat, 26 Jan 2019 16:29:16 -0500</lastBuildDate>
+    <pubDate>Mon, 27 Apr 2020 17:37:01 -0400</pubDate>
+    <lastBuildDate>Mon, 27 Apr 2020 17:37:01 -0400</lastBuildDate>
     <generator>Jekyll v3.8.1</generator>
+    
+      <item>
+        <title>Secure REST API with OAuth 2.0 Client Credentials Flow using Azure AD.</title>
+        <description>&lt;h3 id=&quot;introduction&quot;&gt;Introduction&lt;/h3&gt;
+&lt;p&gt;The following post will describe how to secure Spring Boot REST API with OAuth2 2.0 Client Credentials Flow (M2M) using Azure AD as Authorization Server. The focus will be on Azure AD setup and related Spring Boot/Spring Security configuration nuances. The post will be divided into 2 parts: &lt;code class=&quot;highlighter-rouge&quot;&gt;Part 1. Overview and Azure AD setup&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;Part 2. Spring REST API configuration&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;part-1-overview-and-azure-ad-setup&quot;&gt;Part 1. Overview and Azure AD setup&lt;/h2&gt;
+
+&lt;h3 id=&quot;overview&quot;&gt;Overview&lt;/h3&gt;
+
+&lt;p&gt;OAuth2 2.0 Client Credentials Flow (M2M) is intended to cover Machine-to-Machine (M2M) authentication when a human interaction is not available or applicable (ex: a scheduled job calls a secured api). The flow includes 3 parties ( &lt;code class=&quot;highlighter-rouge&quot;&gt;Authorization Server&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;Resource Server&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;Client&lt;/code&gt;) and contains the following major steps:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Client&lt;/code&gt; sends request to Authorization Server to get an access token. Client is using &lt;code class=&quot;highlighter-rouge&quot;&gt;Client ID&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;Client Secret&lt;/code&gt; (as credentials) and provides &lt;code class=&quot;highlighter-rouge&quot;&gt;Scope&lt;/code&gt; of the request. &lt;code class=&quot;highlighter-rouge&quot;&gt;Scope&lt;/code&gt; identifies the resource/access the client is trying to get.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Authorization Server&lt;/code&gt; authenticates the &lt;code class=&quot;highlighter-rouge&quot;&gt;Client&lt;/code&gt; and provides back an &lt;code class=&quot;highlighter-rouge&quot;&gt;access token&lt;/code&gt;.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Client&lt;/code&gt; calls the &lt;code class=&quot;highlighter-rouge&quot;&gt;Resource Server&lt;/code&gt; and provides &lt;code class=&quot;highlighter-rouge&quot;&gt;access token&lt;/code&gt; as a part of the request.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Resource Server&lt;/code&gt; verifies &lt;code class=&quot;highlighter-rouge&quot;&gt;access token&lt;/code&gt; and  provides access to the requested resource.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;this-exampleapproach&quot;&gt;This Example/Approach&lt;/h3&gt;
+
+&lt;h4 id=&quot;1-authorization-server&quot;&gt;1. Authorization Server&lt;/h4&gt;
+
+&lt;p&gt;Will be using &lt;a href=&quot;https://azure.microsoft.com/en-ca/services/active-directory/&quot;&gt;Microsoft Azure Active Directory&lt;/a&gt; (Azure AD) as Authorization Server. Azure AD supports OAuth2 2.0 Client Credentials Flow and provides all the necessary configuration options.&lt;/p&gt;
+
+&lt;h4 id=&quot;2-resource-server&quot;&gt;2. Resource Server&lt;/h4&gt;
+&lt;p&gt;The example will have a &lt;a href=&quot;https://spring.io/projects/spring-boot&quot;&gt;Spring Boot&lt;/a&gt; based REST API with 2 endpoints. Will be using &lt;a href=&quot;https://docs.spring.io/spring-security-oauth2-boot/docs/current/reference/html/boot-features-security-oauth2-resource-server.html&quot;&gt;Spring Security OAuth 2.0 Resource Server&lt;/a&gt; to protect the API and integrate with the Authorization Server.&lt;/p&gt;
+
+&lt;h4 id=&quot;3-client&quot;&gt;3. Client&lt;/h4&gt;
+&lt;p&gt;Will be using &lt;a href=&quot;https://curl.haxx.se/&quot;&gt;Curl&lt;/a&gt; as our HTTP client to demonstrate that our approach is pure HTTP based, compliant with OAuth 2.0 and client technology agnostic.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;azure-ad-setup&quot;&gt;Azure AD Setup&lt;/h3&gt;
+
+&lt;h4 id=&quot;api-registration&quot;&gt;API Registration&lt;/h4&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Create API (Resource Server) registration in Azure AD by following steps in &lt;a href=&quot;https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app&quot;&gt;https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app&lt;/a&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Please, note that step with &lt;code class=&quot;highlighter-rouge&quot;&gt;Redirect URI&lt;/code&gt; is optional - no need to provide anything there.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Setup permissions (Application Roles) for API by modifying &lt;code class=&quot;highlighter-rouge&quot;&gt;appRoles&lt;/code&gt; section of App Manifest file:&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-json&quot; data-lang=&quot;json&quot;&gt;&lt;span class=&quot;err&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;appRoles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+		&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+			&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;allowedMemberTypes&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+				&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Application&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+			&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+			&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;description&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Consumer apps have access to Hi Endpoint&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+			&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;displayName&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;CallHelloApiRole&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+			&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+			&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;isEnabled&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+			&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;lang&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+			&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;origin&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Application&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+			&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;value&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;CallHiApiRole&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+		&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+		&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+			&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;allowedMemberTypes&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+				&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Application&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+			&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+			&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;description&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Consumer apps have access to Hello Endpoint&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+			&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;displayName&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;CallHiApiRole&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+			&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+			&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;isEnabled&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+			&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;lang&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+			&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;origin&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Application&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+			&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;value&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;CallHelloApiRole&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+		&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+	&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;...&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Notes:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Two app roles were setup (&lt;code class=&quot;highlighter-rouge&quot;&gt;CallHiApiRole&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;CallHiApiRole&lt;/code&gt;) so they can be granted separately if needed&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Manifest&lt;/code&gt; is available via &lt;code class=&quot;highlighter-rouge&quot;&gt;Azure AD-&amp;gt;App Registrations-&amp;gt;&amp;lt;Your App&amp;gt;-&amp;gt;Manifest&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Id&lt;/code&gt; param in role setup must be a GUID and you will need to generate it manually (ex: using &lt;a href=&quot;https://www.guidgenerator.com/&quot;&gt;https://www.guidgenerator.com/&lt;/a&gt;)&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Value&lt;/code&gt; param contains the name of the role/permission&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;client-registration&quot;&gt;Client Registration&lt;/h4&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Register Client App in Azure AD by following steps in &lt;a href=&quot;https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app&quot;&gt;https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app&lt;/a&gt;. These are the same steps as in step #1 of &lt;code class=&quot;highlighter-rouge&quot;&gt;API Registration&lt;/code&gt;.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Grant API permissions (App Roles) to Client App Registration using &lt;code class=&quot;highlighter-rouge&quot;&gt;Azure AD-&amp;gt;App Registrations-&amp;gt;&amp;lt;Your Client&amp;gt;-&amp;gt;API Permisions&lt;/code&gt; screen:
+    &lt;ul&gt;
+      &lt;li&gt;Click &lt;code class=&quot;highlighter-rouge&quot;&gt;Add a permission&lt;/code&gt; button&lt;/li&gt;
+      &lt;li&gt;Select &lt;code class=&quot;highlighter-rouge&quot;&gt;My APIs-&amp;gt;&amp;lt;Your API&amp;gt;-&amp;gt;Application Permissions&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;Tick &lt;code class=&quot;highlighter-rouge&quot;&gt;CallHiApiRole&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;CallHelloApiRole&lt;/code&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Provide Admin consent to Client for new permissions in &lt;code class=&quot;highlighter-rouge&quot;&gt;Azure AD-&amp;gt;App Registrations-&amp;gt;&amp;lt;Your Client&amp;gt;-&amp;gt;API Permissions&lt;/code&gt; screen by clicking &lt;code class=&quot;highlighter-rouge&quot;&gt;Grant admin consent for &amp;lt;Your Azure AD Instance&amp;gt;&lt;/code&gt; button.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Create Client Secret by using &lt;code class=&quot;highlighter-rouge&quot;&gt;Azure AD-&amp;gt;App Registrations-&amp;gt;&amp;lt;Your Client&amp;gt;-&amp;gt;Certificates and secrets&lt;/code&gt; screen by clicking &lt;code class=&quot;highlighter-rouge&quot;&gt;New client secret&lt;/code&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h4 id=&quot;verify-client-and-api-registration&quot;&gt;Verify Client and API Registration&lt;/h4&gt;
+
+&lt;p&gt;Will be checking the setup by performing a &lt;code class=&quot;highlighter-rouge&quot;&gt;Request Token&lt;/code&gt; call to the Authorization Server (Azure AD):&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;Request&lt;/b&gt;&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-http&quot; data-lang=&quot;http&quot;&gt;&lt;span class=&quot;err&quot;&gt;curl --request POST \
+  --url https://login.microsoftonline.com/&amp;lt;azure_ad_tenant_id&amp;gt;/oauth2/v2.0/token \
+  --header 'content-type: application/x-www-form-urlencoded' \
+  --data grant_type=client_credentials \
+  --data scope=api%3A%2F%2F&amp;lt;api_application_id&amp;gt;%2F.default \
+  --data client_id=&amp;lt;client_id&amp;gt; \
+  --data 'client_secret=&amp;lt;client_secret&amp;gt;'&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Notes:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;azure_ad_tenant_id&amp;gt;&lt;/code&gt; is the Tenant ID of your Azure AD instance (&lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;Azure AD-&amp;gt;Overview&amp;gt;&lt;/code&gt;)&lt;/li&gt;
+  &lt;li&gt;Scope: the scope defines requested scope. For Azure AD the format is &lt;code class=&quot;highlighter-rouge&quot;&gt;api://&amp;lt;api_application_id&amp;gt;/.default&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;api_application_id&amp;gt;&lt;/code&gt; is the Application ID of the API (&lt;code class=&quot;highlighter-rouge&quot;&gt;Azure AD-&amp;gt;App Registrations-&amp;gt;&amp;lt;Your App&amp;gt;-&amp;lt;Overview&amp;gt;&lt;/code&gt;)&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;client_id&amp;gt;&lt;/code&gt; is the Application ID of the Client registration in AD (&lt;code class=&quot;highlighter-rouge&quot;&gt;Azure AD-&amp;gt;App Registrations-&amp;gt;&amp;lt;Your Client&amp;gt;-&amp;gt;Overview&lt;/code&gt;)&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;client_secret&amp;gt;&lt;/code&gt; is the secret defined for Client in step #4 of &lt;code class=&quot;highlighter-rouge&quot;&gt;Client Registration&lt;/code&gt; step&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;b&gt;Response&lt;/b&gt;&lt;/p&gt;
+
+&lt;p&gt;Will be getting a JWT access token as our response (successful), ex.:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-json&quot; data-lang=&quot;json&quot;&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;typ&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;JWT&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;alg&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;RS256&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;x5t&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;CtTuhMJmD5M7DLdzD2v2x3QKSRY&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;kid&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;CtTuhMJmD5M7DLdzD2v2x3QKSRY&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;aud&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;api://&amp;lt;api_application_id&amp;gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;iss&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;https://sts.windows.net/&amp;lt;azure_ad_tenant_id&amp;gt;/&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;iat&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1587765136&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;nbf&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1587765136&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;exp&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1587769036&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;aio&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;...&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;appid&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;...&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;appidacr&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;1&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;idp&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;https://sts.windows.net/&amp;lt;azure_ad_tenant_id&amp;gt;/&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;oid&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;...&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;roles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;CallHelloApiRole&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+	&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;CallHiApiRole&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;sub&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;...&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;tid&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&amp;lt;azure_ad_tenant_id&amp;gt;d&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;uti&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;...&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;ver&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;1.0&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;Signature&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Notes:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;aud&lt;/code&gt; claim contains the audience which is your API URI&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;roles&lt;/code&gt; claims contains list of granted permissions for the client for the request scope&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;references&quot;&gt;References:&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow&quot;&gt;Azure AD and the Oauth 2.0 Client Credentials Flow&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps&quot;&gt;How to: Add app roles in your application and receive them in the token&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://docs.microsoft.com/en-us/azure/active-directory/develop/reference-app-manifest&quot;&gt;Azure AD App Manifest Reference&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://docs.microsoft.com/en-us/azure/active-directory/develop/access-tokens&quot;&gt;Access Tokens in Azure AD&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;!-- Universal Code for Disqus  --&gt;&lt;/p&gt;
+&lt;div id=&quot;disqus_thread&quot;&gt;&lt;/div&gt;
+&lt;script&gt;
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    /*
+    var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+
+        s.src = '//https-mogikanen9-github-io.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+&lt;/script&gt;
+
+&lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
+
+</description>
+        <pubDate>Sun, 26 Apr 2020 10:00:01 -0400</pubDate>
+        <link>https://mogikanen9.github.io/java/spring/rest/azuread/oauth2/2020/04/26/spring-rest-azure-ad-oauth-p1.html</link>
+        <guid isPermaLink="true">https://mogikanen9.github.io/java/spring/rest/azuread/oauth2/2020/04/26/spring-rest-azure-ad-oauth-p1.html</guid>
+        
+        
+        <category>java</category>
+        
+        <category>spring</category>
+        
+        <category>rest</category>
+        
+        <category>azuread</category>
+        
+        <category>oauth2</category>
+        
+      </item>
     
       <item>
         <title>Maven, Azure DevOps Pipelines and Artifacts.</title>
