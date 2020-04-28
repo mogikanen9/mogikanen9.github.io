@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.5.0 -->
+<title>Secure REST API with OAuth 2.0 Client Credentials Flow using Azure AD. Part 2 | My Personal Blog</title>
+<meta name="generator" content="Jekyll v3.8.1" />
+<meta property="og:title" content="Secure REST API with OAuth 2.0 Client Credentials Flow using Azure AD. Part 2" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Part 2. Spring REST API configuration Introduction The second part of the post will cover Spring Boot/Spring Security setup and configuration details. It will rely on the configuration of Azure AD from Part 1. Spring Boot REST API Example Define a dummy Spring Boot REST API with 2 endpoints ‘hi’ and ‘hello’. ... @RestController @RequestMapping(&quot;/api/v1&quot;) public class GreetingController { @GetMapping(&quot;/hi&quot;) public String hi() { return &quot;Hi&quot;; } @GetMapping(&quot;/hello&quot;) public String hello(@RequestParam(name = &quot;name&quot;, required = true) final String name) { return String.format(&quot;Hello, %s&quot;, name); } } ... OAuth 2.0 Resource Server Configuration steps Create custom ResourceServerConfig class which extends ResourceServerConfigurerAdapter and is annotated with @Configuration. Enable resource server by adding @EnableResourceServer annotation to. Enable Web Security by adding @EnableWebSecurity annotation to ResourceServerConfig class Enable method level authorization by adding @EnableGlobalMethodSecurity(prePostEnabled = true) ... @Configuration @EnableResourceServer @EnableWebSecurity @EnableGlobalMethodSecurity(prePostEnabled = true) public class ResourceServerConfig extends ResourceServerConfigurerAdapter { ... Explicitly set Resource ID for our resource server - it must be the same as our API URI which was defined in Part 1 and used as scope in access token request (without ‘.default’). ... @Override public void configure(final ResourceServerSecurityConfigurer resources) throws Exception { resources.resourceId(&quot;api://&lt;api_application_id&gt;&quot;).stateless(true); } ... Update Security Configuration and require authentication for all API endpoints: ... @Override public void configure(final HttpSecurity http) throws Exception { http .authorizeRequests(authorize -&gt; authorize .antMatchers(&quot;/api/v1/**&quot;).authenticated() .antMatchers(&quot;/&quot;).permitAll()); } ... By default Spring Security expects authorities claim in Access Token. However Azure AD populates roles claim with the Application Roles. Will need to customize the default behaviour by defining a custom implementation of JwtAuthenticationConverter: ... @Override public void configure(final HttpSecurity http) throws Exception { http .authorizeRequests(authorize -&gt; authorize .antMatchers(&quot;/api/v1/**&quot;).authenticated() .antMatchers(&quot;/&quot;).permitAll()) .oauth2ResourceServer(oauth2 -&gt; oauth2 .jwt(jwt -&gt; jwt .jwtAuthenticationConverter(jwtAuthenticationConverter()))); } private JwtAuthenticationConverter jwtAuthenticationConverter() { JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter(); grantedAuthoritiesConverter.setAuthoritiesClaimName(&quot;roles&quot;); JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter(); jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter); return jwtAuthenticationConverter; } ... Spring Security needs to know the location of the public key which was used to sign the token so token signature valication can be performed. Azure AD has several active private keys and uses one of them to sign the token. The public keys are available at https://login.microsoftonline.com/common/discovery/v2.0/keys. The actual key id is defined in kid claim in the access token. Will need to provide JWK URI to Spring Security so it knows where to grab the keys. ... @Override public void configure(final HttpSecurity http) throws Exception { http .authorizeRequests(authorize -&gt; authorize .antMatchers(&quot;/api/v1/**&quot;).authenticated() .antMatchers(&quot;/&quot;).permitAll()) // ; .oauth2ResourceServer(oauth2 -&gt; oauth2 .jwt(jwt -&gt; jwt .jwtAuthenticationConverter(jwtAuthenticationConverter()) .jwkSetUri(&quot;https://login.microsoftonline.com/common/discovery/v2.0/keys&quot;))); } ... Will protect the endpoints of REST API with different roles/authorities by applying method level authorization configuration using @PreAuthorize annotation of Spring Security in the controller: ... @PreAuthorize(&quot;hasAuthority(&#39;SCOPE_CallHiApiRole&#39;)&quot;) @GetMapping(&quot;/hi&quot;) public String hi() { return &quot;Hi&quot;; } @PreAuthorize(&quot;hasAuthority(&#39;SCOPE_CallHelloApiRole&#39;)&quot;) @GetMapping(&quot;/hello&quot;) public String hello(@RequestParam(name = &quot;name&quot;, required = true) final String name) { return String.format(&quot;Hello, %s&quot;, name); } ... Note: Role/authority names match the Application Roles defined in Azure AD and have SCOPE_ prefix. Use hasAuthority Security EL instead of hasRole Verify Resource Server setup Will be checking the setup by performing a request to our API suing Access Token obtained from our Authorization Server (Azure AD - see Part 1). Request curl --request GET \ --url http://localhost:8082/api/v1/hi \ --header &#39;authorization: Bearer &lt;access_token&gt;&#39; Notes: &lt;access_token&gt; is the Tenant ID of your Azure AD instance (&lt;Azure AD-&gt;Overview&gt;) Response. Example - Successful HTTP/1.1 200 ... Hi Response. Example - Access Denied In case proper application role is not granted as permission to the client we will get a 403 error: HTTP/1.1 403 ... {&quot;error&quot;:&quot;access_denied&quot;,&quot;error_description&quot;:&quot;Access is denied&quot;} References: Building a RESTful Web Service Spring Security: Configure Authorization) JWS + JWK in a Spring Security OAuth2 Application Part 1. Overview and Azure AD setup Please enable JavaScript to view the comments powered by Disqus." />
+<meta property="og:description" content="Part 2. Spring REST API configuration Introduction The second part of the post will cover Spring Boot/Spring Security setup and configuration details. It will rely on the configuration of Azure AD from Part 1. Spring Boot REST API Example Define a dummy Spring Boot REST API with 2 endpoints ‘hi’ and ‘hello’. ... @RestController @RequestMapping(&quot;/api/v1&quot;) public class GreetingController { @GetMapping(&quot;/hi&quot;) public String hi() { return &quot;Hi&quot;; } @GetMapping(&quot;/hello&quot;) public String hello(@RequestParam(name = &quot;name&quot;, required = true) final String name) { return String.format(&quot;Hello, %s&quot;, name); } } ... OAuth 2.0 Resource Server Configuration steps Create custom ResourceServerConfig class which extends ResourceServerConfigurerAdapter and is annotated with @Configuration. Enable resource server by adding @EnableResourceServer annotation to. Enable Web Security by adding @EnableWebSecurity annotation to ResourceServerConfig class Enable method level authorization by adding @EnableGlobalMethodSecurity(prePostEnabled = true) ... @Configuration @EnableResourceServer @EnableWebSecurity @EnableGlobalMethodSecurity(prePostEnabled = true) public class ResourceServerConfig extends ResourceServerConfigurerAdapter { ... Explicitly set Resource ID for our resource server - it must be the same as our API URI which was defined in Part 1 and used as scope in access token request (without ‘.default’). ... @Override public void configure(final ResourceServerSecurityConfigurer resources) throws Exception { resources.resourceId(&quot;api://&lt;api_application_id&gt;&quot;).stateless(true); } ... Update Security Configuration and require authentication for all API endpoints: ... @Override public void configure(final HttpSecurity http) throws Exception { http .authorizeRequests(authorize -&gt; authorize .antMatchers(&quot;/api/v1/**&quot;).authenticated() .antMatchers(&quot;/&quot;).permitAll()); } ... By default Spring Security expects authorities claim in Access Token. However Azure AD populates roles claim with the Application Roles. Will need to customize the default behaviour by defining a custom implementation of JwtAuthenticationConverter: ... @Override public void configure(final HttpSecurity http) throws Exception { http .authorizeRequests(authorize -&gt; authorize .antMatchers(&quot;/api/v1/**&quot;).authenticated() .antMatchers(&quot;/&quot;).permitAll()) .oauth2ResourceServer(oauth2 -&gt; oauth2 .jwt(jwt -&gt; jwt .jwtAuthenticationConverter(jwtAuthenticationConverter()))); } private JwtAuthenticationConverter jwtAuthenticationConverter() { JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter(); grantedAuthoritiesConverter.setAuthoritiesClaimName(&quot;roles&quot;); JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter(); jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter); return jwtAuthenticationConverter; } ... Spring Security needs to know the location of the public key which was used to sign the token so token signature valication can be performed. Azure AD has several active private keys and uses one of them to sign the token. The public keys are available at https://login.microsoftonline.com/common/discovery/v2.0/keys. The actual key id is defined in kid claim in the access token. Will need to provide JWK URI to Spring Security so it knows where to grab the keys. ... @Override public void configure(final HttpSecurity http) throws Exception { http .authorizeRequests(authorize -&gt; authorize .antMatchers(&quot;/api/v1/**&quot;).authenticated() .antMatchers(&quot;/&quot;).permitAll()) // ; .oauth2ResourceServer(oauth2 -&gt; oauth2 .jwt(jwt -&gt; jwt .jwtAuthenticationConverter(jwtAuthenticationConverter()) .jwkSetUri(&quot;https://login.microsoftonline.com/common/discovery/v2.0/keys&quot;))); } ... Will protect the endpoints of REST API with different roles/authorities by applying method level authorization configuration using @PreAuthorize annotation of Spring Security in the controller: ... @PreAuthorize(&quot;hasAuthority(&#39;SCOPE_CallHiApiRole&#39;)&quot;) @GetMapping(&quot;/hi&quot;) public String hi() { return &quot;Hi&quot;; } @PreAuthorize(&quot;hasAuthority(&#39;SCOPE_CallHelloApiRole&#39;)&quot;) @GetMapping(&quot;/hello&quot;) public String hello(@RequestParam(name = &quot;name&quot;, required = true) final String name) { return String.format(&quot;Hello, %s&quot;, name); } ... Note: Role/authority names match the Application Roles defined in Azure AD and have SCOPE_ prefix. Use hasAuthority Security EL instead of hasRole Verify Resource Server setup Will be checking the setup by performing a request to our API suing Access Token obtained from our Authorization Server (Azure AD - see Part 1). Request curl --request GET \ --url http://localhost:8082/api/v1/hi \ --header &#39;authorization: Bearer &lt;access_token&gt;&#39; Notes: &lt;access_token&gt; is the Tenant ID of your Azure AD instance (&lt;Azure AD-&gt;Overview&gt;) Response. Example - Successful HTTP/1.1 200 ... Hi Response. Example - Access Denied In case proper application role is not granted as permission to the client we will get a 403 error: HTTP/1.1 403 ... {&quot;error&quot;:&quot;access_denied&quot;,&quot;error_description&quot;:&quot;Access is denied&quot;} References: Building a RESTful Web Service Spring Security: Configure Authorization) JWS + JWK in a Spring Security OAuth2 Application Part 1. Overview and Azure AD setup Please enable JavaScript to view the comments powered by Disqus." />
+<link rel="canonical" href="https://mogikanen9.github.io/java/spring/rest/azuread/oauth2/2020/04/28/spring-rest-azure-ad-oauth-p2.html" />
+<meta property="og:url" content="https://mogikanen9.github.io/java/spring/rest/azuread/oauth2/2020/04/28/spring-rest-azure-ad-oauth-p2.html" />
+<meta property="og:site_name" content="My Personal Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-04-28T11:00:01-04:00" />
+<script type="application/ld+json">
+{"description":"Part 2. Spring REST API configuration Introduction The second part of the post will cover Spring Boot/Spring Security setup and configuration details. It will rely on the configuration of Azure AD from Part 1. Spring Boot REST API Example Define a dummy Spring Boot REST API with 2 endpoints ‘hi’ and ‘hello’. ... @RestController @RequestMapping(&quot;/api/v1&quot;) public class GreetingController { @GetMapping(&quot;/hi&quot;) public String hi() { return &quot;Hi&quot;; } @GetMapping(&quot;/hello&quot;) public String hello(@RequestParam(name = &quot;name&quot;, required = true) final String name) { return String.format(&quot;Hello, %s&quot;, name); } } ... OAuth 2.0 Resource Server Configuration steps Create custom ResourceServerConfig class which extends ResourceServerConfigurerAdapter and is annotated with @Configuration. Enable resource server by adding @EnableResourceServer annotation to. Enable Web Security by adding @EnableWebSecurity annotation to ResourceServerConfig class Enable method level authorization by adding @EnableGlobalMethodSecurity(prePostEnabled = true) ... @Configuration @EnableResourceServer @EnableWebSecurity @EnableGlobalMethodSecurity(prePostEnabled = true) public class ResourceServerConfig extends ResourceServerConfigurerAdapter { ... Explicitly set Resource ID for our resource server - it must be the same as our API URI which was defined in Part 1 and used as scope in access token request (without ‘.default’). ... @Override public void configure(final ResourceServerSecurityConfigurer resources) throws Exception { resources.resourceId(&quot;api://&lt;api_application_id&gt;&quot;).stateless(true); } ... Update Security Configuration and require authentication for all API endpoints: ... @Override public void configure(final HttpSecurity http) throws Exception { http .authorizeRequests(authorize -&gt; authorize .antMatchers(&quot;/api/v1/**&quot;).authenticated() .antMatchers(&quot;/&quot;).permitAll()); } ... By default Spring Security expects authorities claim in Access Token. However Azure AD populates roles claim with the Application Roles. Will need to customize the default behaviour by defining a custom implementation of JwtAuthenticationConverter: ... @Override public void configure(final HttpSecurity http) throws Exception { http .authorizeRequests(authorize -&gt; authorize .antMatchers(&quot;/api/v1/**&quot;).authenticated() .antMatchers(&quot;/&quot;).permitAll()) .oauth2ResourceServer(oauth2 -&gt; oauth2 .jwt(jwt -&gt; jwt .jwtAuthenticationConverter(jwtAuthenticationConverter()))); } private JwtAuthenticationConverter jwtAuthenticationConverter() { JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter(); grantedAuthoritiesConverter.setAuthoritiesClaimName(&quot;roles&quot;); JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter(); jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter); return jwtAuthenticationConverter; } ... Spring Security needs to know the location of the public key which was used to sign the token so token signature valication can be performed. Azure AD has several active private keys and uses one of them to sign the token. The public keys are available at https://login.microsoftonline.com/common/discovery/v2.0/keys. The actual key id is defined in kid claim in the access token. Will need to provide JWK URI to Spring Security so it knows where to grab the keys. ... @Override public void configure(final HttpSecurity http) throws Exception { http .authorizeRequests(authorize -&gt; authorize .antMatchers(&quot;/api/v1/**&quot;).authenticated() .antMatchers(&quot;/&quot;).permitAll()) // ; .oauth2ResourceServer(oauth2 -&gt; oauth2 .jwt(jwt -&gt; jwt .jwtAuthenticationConverter(jwtAuthenticationConverter()) .jwkSetUri(&quot;https://login.microsoftonline.com/common/discovery/v2.0/keys&quot;))); } ... Will protect the endpoints of REST API with different roles/authorities by applying method level authorization configuration using @PreAuthorize annotation of Spring Security in the controller: ... @PreAuthorize(&quot;hasAuthority(&#39;SCOPE_CallHiApiRole&#39;)&quot;) @GetMapping(&quot;/hi&quot;) public String hi() { return &quot;Hi&quot;; } @PreAuthorize(&quot;hasAuthority(&#39;SCOPE_CallHelloApiRole&#39;)&quot;) @GetMapping(&quot;/hello&quot;) public String hello(@RequestParam(name = &quot;name&quot;, required = true) final String name) { return String.format(&quot;Hello, %s&quot;, name); } ... Note: Role/authority names match the Application Roles defined in Azure AD and have SCOPE_ prefix. Use hasAuthority Security EL instead of hasRole Verify Resource Server setup Will be checking the setup by performing a request to our API suing Access Token obtained from our Authorization Server (Azure AD - see Part 1). Request curl --request GET \\ --url http://localhost:8082/api/v1/hi \\ --header &#39;authorization: Bearer &lt;access_token&gt;&#39; Notes: &lt;access_token&gt; is the Tenant ID of your Azure AD instance (&lt;Azure AD-&gt;Overview&gt;) Response. Example - Successful HTTP/1.1 200 ... Hi Response. Example - Access Denied In case proper application role is not granted as permission to the client we will get a 403 error: HTTP/1.1 403 ... {&quot;error&quot;:&quot;access_denied&quot;,&quot;error_description&quot;:&quot;Access is denied&quot;} References: Building a RESTful Web Service Spring Security: Configure Authorization) JWS + JWK in a Spring Security OAuth2 Application Part 1. Overview and Azure AD setup Please enable JavaScript to view the comments powered by Disqus.","@type":"BlogPosting","url":"https://mogikanen9.github.io/java/spring/rest/azuread/oauth2/2020/04/28/spring-rest-azure-ad-oauth-p2.html","headline":"Secure REST API with OAuth 2.0 Client Credentials Flow using Azure AD. Part 2","dateModified":"2020-04-28T11:00:01-04:00","datePublished":"2020-04-28T11:00:01-04:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://mogikanen9.github.io/java/spring/rest/azuread/oauth2/2020/04/28/spring-rest-azure-ad-oauth-p2.html"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://mogikanen9.github.io/feed.xml" title="My Personal Blog" /><script>
+if(!(window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1")) {
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-118873436-1', 'auto');
+  ga('send', 'pageview');
+}
+</script>
+  
+</head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">My Personal Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Secure REST API with OAuth 2.0 Client Credentials Flow using Azure AD. Part 2</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2020-04-28T11:00:01-04:00" itemprop="datePublished">Apr 28, 2020
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <h2 id="part-2-spring-rest-api-configuration">Part 2. Spring REST API configuration</h2>
+
+<h3 id="introduction">Introduction</h3>
+<p>The second part of the post will cover Spring Boot/Spring Security setup and configuration details. It will rely on the
+configuration of Azure AD from <a href="spring-rest-azure-ad-oauth-p1.html">Part 1</a>.</p>
+
+<h3 id="spring-boot-rest-api-example">Spring Boot REST API Example</h3>
+
+<p>Define a dummy Spring Boot REST API with 2 endpoints ‘hi’ and ‘hello’.</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="o">...</span>
+<span class="nd">@RestController</span>
+<span class="nd">@RequestMapping</span><span class="o">(</span><span class="s">"/api/v1"</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">GreetingController</span> <span class="o">{</span>
+
+    <span class="nd">@GetMapping</span><span class="o">(</span><span class="s">"/hi"</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">hi</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">"Hi"</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@GetMapping</span><span class="o">(</span><span class="s">"/hello"</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">hello</span><span class="o">(</span><span class="nd">@RequestParam</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"name"</span><span class="o">,</span> <span class="n">required</span> <span class="o">=</span> <span class="kc">true</span><span class="o">)</span>
+    <span class="kd">final</span> <span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">"Hello, %s"</span><span class="o">,</span> <span class="n">name</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+<span class="o">...</span></code></pre></figure>
+
+<p><br /></p>
+
+<h3 id="oauth-20-resource-server">OAuth 2.0 Resource Server</h3>
+
+<h4 id="configuration-steps">Configuration steps</h4>
+
+<ol>
+  <li>
+    <p>Create custom <code class="highlighter-rouge">ResourceServerConfig</code> class which extends <code class="highlighter-rouge">ResourceServerConfigurerAdapter</code> and is annotated with <code class="highlighter-rouge">@Configuration</code>.</p>
+  </li>
+  <li>
+    <p>Enable resource server by adding <code class="highlighter-rouge">@EnableResourceServer</code> annotation to.</p>
+  </li>
+  <li>
+    <p>Enable Web Security by adding <code class="highlighter-rouge">@EnableWebSecurity</code> annotation to <code class="highlighter-rouge">ResourceServerConfig</code> class</p>
+  </li>
+  <li>
+    <p>Enable method level authorization by adding <code class="highlighter-rouge">@EnableGlobalMethodSecurity(prePostEnabled = true)</code></p>
+  </li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="o">...</span>
+<span class="nd">@Configuration</span>
+<span class="nd">@EnableResourceServer</span>
+<span class="nd">@EnableWebSecurity</span>
+<span class="nd">@EnableGlobalMethodSecurity</span><span class="o">(</span><span class="n">prePostEnabled</span> <span class="o">=</span> <span class="kc">true</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ResourceServerConfig</span> <span class="kd">extends</span> <span class="n">ResourceServerConfigurerAdapter</span> <span class="o">{</span>
+<span class="o">...</span></code></pre></figure>
+
+<ol>
+  <li>Explicitly set Resource ID for our resource server - it must be the same as our API URI which was defined in Part 1 and used as <code class="highlighter-rouge">scope</code> in access token request (without ‘.default’).</li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="o">...</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">(</span><span class="kd">final</span> <span class="n">ResourceServerSecurityConfigurer</span> <span class="n">resources</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+        <span class="n">resources</span><span class="o">.</span><span class="na">resourceId</span><span class="o">(</span><span class="s">"api://&lt;api_application_id&gt;"</span><span class="o">).</span><span class="na">stateless</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">...</span></code></pre></figure>
+
+<ol>
+  <li>Update Security Configuration and require authentication for all API endpoints:</li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="o">...</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">(</span><span class="kd">final</span> <span class="n">HttpSecurity</span> <span class="n">http</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+
+        <span class="n">http</span>
+                <span class="o">.</span><span class="na">authorizeRequests</span><span class="o">(</span><span class="n">authorize</span> <span class="o">-&gt;</span> <span class="n">authorize</span>
+                        <span class="o">.</span><span class="na">antMatchers</span><span class="o">(</span><span class="s">"/api/v1/**"</span><span class="o">).</span><span class="na">authenticated</span><span class="o">()</span>
+                        <span class="o">.</span><span class="na">antMatchers</span><span class="o">(</span><span class="s">"/"</span><span class="o">).</span><span class="na">permitAll</span><span class="o">());</span>
+    <span class="o">}</span>
+<span class="o">...</span></code></pre></figure>
+
+<ol>
+  <li>By default Spring Security expects <code class="highlighter-rouge">authorities</code> claim in <code class="highlighter-rouge">Access Token</code>. However Azure AD populates <code class="highlighter-rouge">roles</code> claim with the Application Roles. Will need to customize the default behaviour by defining a custom implementation of <code class="highlighter-rouge">JwtAuthenticationConverter</code>:</li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="o">...</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">(</span><span class="kd">final</span> <span class="n">HttpSecurity</span> <span class="n">http</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+
+        <span class="n">http</span>
+                <span class="o">.</span><span class="na">authorizeRequests</span><span class="o">(</span><span class="n">authorize</span> <span class="o">-&gt;</span> <span class="n">authorize</span>
+                        <span class="o">.</span><span class="na">antMatchers</span><span class="o">(</span><span class="s">"/api/v1/**"</span><span class="o">).</span><span class="na">authenticated</span><span class="o">()</span>
+                        <span class="o">.</span><span class="na">antMatchers</span><span class="o">(</span><span class="s">"/"</span><span class="o">).</span><span class="na">permitAll</span><span class="o">())</span>
+                <span class="o">.</span><span class="na">oauth2ResourceServer</span><span class="o">(</span><span class="n">oauth2</span> <span class="o">-&gt;</span> <span class="n">oauth2</span>
+                        <span class="o">.</span><span class="na">jwt</span><span class="o">(</span><span class="n">jwt</span> <span class="o">-&gt;</span> <span class="n">jwt</span>
+                                <span class="o">.</span><span class="na">jwtAuthenticationConverter</span><span class="o">(</span><span class="n">jwtAuthenticationConverter</span><span class="o">())));</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="n">JwtAuthenticationConverter</span> <span class="nf">jwtAuthenticationConverter</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">JwtGrantedAuthoritiesConverter</span> <span class="n">grantedAuthoritiesConverter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JwtGrantedAuthoritiesConverter</span><span class="o">();</span>
+        <span class="n">grantedAuthoritiesConverter</span><span class="o">.</span><span class="na">setAuthoritiesClaimName</span><span class="o">(</span><span class="s">"roles"</span><span class="o">);</span>
+
+        <span class="n">JwtAuthenticationConverter</span> <span class="n">jwtAuthenticationConverter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JwtAuthenticationConverter</span><span class="o">();</span>
+        <span class="n">jwtAuthenticationConverter</span><span class="o">.</span><span class="na">setJwtGrantedAuthoritiesConverter</span><span class="o">(</span><span class="n">grantedAuthoritiesConverter</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">jwtAuthenticationConverter</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">...</span></code></pre></figure>
+
+<ol>
+  <li>Spring Security needs to know the location of the public key which was used to sign the token so token signature valication can be performed. Azure AD has several active private keys and uses one of them to sign the token. The public keys are available at <a href="https://login.microsoftonline.com/common/discovery/v2.0/keys">https://login.microsoftonline.com/common/discovery/v2.0/keys</a>. The actual key id is defined in <code class="highlighter-rouge">kid</code> claim in the <code class="highlighter-rouge">access token</code>. Will need to provide JWK URI to Spring Security so it knows where to grab the keys.</li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="o">...</span>
+   <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">(</span><span class="kd">final</span> <span class="n">HttpSecurity</span> <span class="n">http</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+
+        <span class="n">http</span>
+                <span class="o">.</span><span class="na">authorizeRequests</span><span class="o">(</span><span class="n">authorize</span> <span class="o">-&gt;</span> <span class="n">authorize</span>
+                        <span class="o">.</span><span class="na">antMatchers</span><span class="o">(</span><span class="s">"/api/v1/**"</span><span class="o">).</span><span class="na">authenticated</span><span class="o">()</span>
+                        <span class="o">.</span><span class="na">antMatchers</span><span class="o">(</span><span class="s">"/"</span><span class="o">).</span><span class="na">permitAll</span><span class="o">())</span> <span class="c1">// ;
+</span>
+                <span class="o">.</span><span class="na">oauth2ResourceServer</span><span class="o">(</span><span class="n">oauth2</span> <span class="o">-&gt;</span> <span class="n">oauth2</span>
+                        <span class="o">.</span><span class="na">jwt</span><span class="o">(</span><span class="n">jwt</span> <span class="o">-&gt;</span> <span class="n">jwt</span>
+                                <span class="o">.</span><span class="na">jwtAuthenticationConverter</span><span class="o">(</span><span class="n">jwtAuthenticationConverter</span><span class="o">())</span>
+                                <span class="o">.</span><span class="na">jwkSetUri</span><span class="o">(</span><span class="s">"https://login.microsoftonline.com/common/discovery/v2.0/keys"</span><span class="o">)));</span>
+      <span class="o">}</span>
+
+<span class="o">...</span></code></pre></figure>
+
+<ol>
+  <li>Will protect the endpoints of REST API with different roles/authorities by applying method level authorization configuration using <code class="highlighter-rouge">@PreAuthorize</code> annotation of <code class="highlighter-rouge">Spring Security</code> in the controller:</li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="o">...</span>
+
+    <span class="nd">@PreAuthorize</span><span class="o">(</span><span class="s">"hasAuthority('SCOPE_CallHiApiRole')"</span><span class="o">)</span>
+    <span class="nd">@GetMapping</span><span class="o">(</span><span class="s">"/hi"</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">hi</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">"Hi"</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@PreAuthorize</span><span class="o">(</span><span class="s">"hasAuthority('SCOPE_CallHelloApiRole')"</span><span class="o">)</span>
+    <span class="nd">@GetMapping</span><span class="o">(</span><span class="s">"/hello"</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">hello</span><span class="o">(</span><span class="nd">@RequestParam</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"name"</span><span class="o">,</span> <span class="n">required</span> <span class="o">=</span> <span class="kc">true</span><span class="o">)</span>
+    <span class="kd">final</span> <span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">"Hello, %s"</span><span class="o">,</span> <span class="n">name</span><span class="o">);</span>
+    <span class="o">}</span>
+
+<span class="o">...</span></code></pre></figure>
+
+<p>Note:</p>
+<ul>
+  <li>Role/authority names match the <code class="highlighter-rouge">Application Roles</code> defined in Azure AD and have <code class="highlighter-rouge">SCOPE_</code> prefix.</li>
+  <li>Use <code class="highlighter-rouge">hasAuthority</code> Security EL instead of <code class="highlighter-rouge">hasRole</code></li>
+</ul>
+
+<h4 id="verify-resource-server-setup">Verify Resource Server setup</h4>
+
+<p>Will be checking the setup by performing a request to our API suing <code class="highlighter-rouge">Access Token</code> obtained from our Authorization Server (Azure AD - see Part 1).</p>
+
+<p><b>Request</b></p>
+
+<figure class="highlight"><pre><code class="language-http" data-lang="http"><span class="err">curl --request GET \
+  --url http://localhost:8082/api/v1/hi \
+  --header 'authorization: Bearer &lt;access_token&gt;'</span></code></pre></figure>
+
+<p>Notes:</p>
+<ul>
+  <li><code class="highlighter-rouge">&lt;access_token&gt;</code> is the Tenant ID of your Azure AD instance (<code class="highlighter-rouge">&lt;Azure AD-&gt;Overview&gt;</code>)</li>
+</ul>
+
+<p><b>Response. Example - Successful</b></p>
+
+<figure class="highlight"><pre><code class="language-http" data-lang="http"><span class="err">HTTP/1.1 200 
+...
+Hi</span></code></pre></figure>
+
+<p><b>Response. Example - Access Denied</b>
+In case proper application role is not granted as permission to the client we will get a 403 error:</p>
+
+<figure class="highlight"><pre><code class="language-http" data-lang="http"><span class="err">HTTP/1.1 403 
+...
+
+{"error":"access_denied","error_description":"Access is denied"}</span></code></pre></figure>
+
+<h3 id="references">References:</h3>
+<ul>
+  <li><a href="https://spring.io/guides/gs/rest-service/">Building a RESTful Web Service</a></li>
+  <li><a href="https://docs.spring.io/spring-security/site/docs/current/reference/html5/#oauth2resourceserver-jwt-authorization">Spring Security: Configure Authorization)</a></li>
+  <li><a href="https://www.baeldung.com/spring-security-oauth2-jws-jwk">JWS + JWK in a Spring Security OAuth2 Application</a></li>
+</ul>
+
+<p><a href="spring-rest-azure-ad-oauth-p1.html">Part 1. Overview and Azure AD setup</a></p>
+
+<p><!-- Universal Code for Disqus  --></p>
+<div id="disqus_thread"></div>
+<script>
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    /*
+    var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+
+        s.src = '//https-mogikanen9-github-io.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+
+  </div><a class="u-url" href="/java/spring/rest/azuread/oauth2/2020/04/28/spring-rest-azure-ad-oauth-p2.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">My Personal Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">My Personal Blog</li><li><a class="u-email" href="mailto:mogikanensoftware@gmail.com">mogikanensoftware@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/mogikanen9"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">mogikanen9</span></a></li><li><a href="https://www.twitter.com/mogikanen9"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">mogikanen9</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>This blog is an attempt to dive into personal blogging related to software development.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
