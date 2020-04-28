@@ -184,13 +184,19 @@ The post will be divided into 2 parts:</p>
 
 <p><b>Request</b></p>
 
-<figure class="highlight"><pre><code class="language-http" data-lang="http"><span class="err">curl --request POST \
-  --url https://login.microsoftonline.com/&lt;azure_ad_tenant_id&gt;/oauth2/v2.0/token \
-  --header 'content-type: application/x-www-form-urlencoded' \
-  --data grant_type=client_credentials \
-  --data scope=api%3A%2F%2F&lt;api_application_id&gt;%2F.default \
-  --data client_id=&lt;client_id&gt; \
-  --data 'client_secret=&lt;client_secret&gt;'</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">curl <span class="nt">--request</span> POST <span class="se">\
+</span>
+  <span class="nt">--url</span> https://login.microsoftonline.com/&lt;azure_ad_tenant_id&gt;/oauth2/v2.0/token <span class="se">\
+</span>
+  <span class="nt">--header</span> <span class="s1">'content-type: application/x-www-form-urlencoded'</span> <span class="se">\
+</span>
+  <span class="nt">--data</span> <span class="nv">grant_type</span><span class="o">=</span>client_credentials <span class="se">\
+</span>
+  <span class="nt">--data</span> <span class="nv">scope</span><span class="o">=</span>api%3A%2F%2F&lt;api_application_id&gt;%2F.default <span class="se">\
+</span>
+  <span class="nt">--data</span> <span class="nv">client_id</span><span class="o">=</span>&lt;client_id&gt; <span class="se">\
+</span>
+  <span class="nt">--data</span> <span class="s1">'client_secret=&lt;client_secret&gt;'</span></code></pre></figure>
 
 <p>Notes:</p>
 <ul>
