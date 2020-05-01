@@ -6,8 +6,8 @@
 </description>
     <link>https://mogikanen9.github.io/</link>
     <atom:link href="https://mogikanen9.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Tue, 28 Apr 2020 14:44:56 -0400</pubDate>
-    <lastBuildDate>Tue, 28 Apr 2020 14:44:56 -0400</lastBuildDate>
+    <pubDate>Fri, 01 May 2020 15:43:25 -0400</pubDate>
+    <lastBuildDate>Fri, 01 May 2020 15:43:25 -0400</lastBuildDate>
     <generator>Jekyll v3.8.1</generator>
     
       <item>
@@ -170,6 +170,8 @@ configuration of Azure AD from &lt;a href=&quot;spring-rest-azure-ad-oauth-p1.ht
      &lt;span class=&quot;nt&quot;&gt;--url&lt;/span&gt; http://localhost:8082/api/v1/hi &lt;span class=&quot;se&quot;&gt;\
 &lt;/span&gt;
      &lt;span class=&quot;nt&quot;&gt;--header&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'authorization: Bearer &amp;lt;access_token&amp;gt;'&lt;/span&gt;
+
+     
     &lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;Notes:&lt;/p&gt;
@@ -192,6 +194,10 @@ configuration of Azure AD from &lt;a href=&quot;spring-rest-azure-ad-oauth-p1.ht
      ...
      &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;error&quot;&lt;/span&gt;:&lt;span class=&quot;s2&quot;&gt;&quot;access_denied&quot;&lt;/span&gt;,&lt;span class=&quot;s2&quot;&gt;&quot;error_description&quot;&lt;/span&gt;:&lt;span class=&quot;s2&quot;&gt;&quot;Access is denied&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;     
      &lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h3 id=&quot;summary&quot;&gt;Summary&lt;/h3&gt;
+
+&lt;p&gt;Spring Security provides a full support of OAuth 2.0 Resource Server implementation and is highly customizable. Check &lt;a href=&quot;https://github.com/mogikanen9/blog-demo-projects/tree/master/spring-boot-azure-ad-auth/api&quot;&gt;full source code&lt;/a&gt; of the above example on GitHub.&lt;/p&gt;
 
 &lt;h3 id=&quot;references&quot;&gt;References:&lt;/h3&gt;
 &lt;ul&gt;
