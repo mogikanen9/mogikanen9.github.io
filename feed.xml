@@ -6,8 +6,8 @@
 </description>
     <link>https://mogikanen9.github.io/</link>
     <atom:link href="https://mogikanen9.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Tue, 05 May 2020 18:28:16 +0000</pubDate>
-    <lastBuildDate>Tue, 05 May 2020 18:28:16 +0000</lastBuildDate>
+    <pubDate>Tue, 05 May 2020 20:18:23 +0000</pubDate>
+    <lastBuildDate>Tue, 05 May 2020 20:18:23 +0000</lastBuildDate>
     <generator>Jekyll v3.8.6</generator>
     
       <item>
@@ -308,13 +308,12 @@ The post will be divided into 2 parts:&lt;/p&gt;
 &lt;h4 id=&quot;api-registration&quot;&gt;API Registration&lt;/h4&gt;
 
 &lt;ol&gt;
-  &lt;li&gt;Create API (Resource Server) registration in Azure AD by following steps in &lt;a href=&quot;https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app&quot;&gt;https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app&lt;/a&gt;.&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;Please, note that step with &lt;code class=&quot;highlighter-rouge&quot;&gt;Redirect URI&lt;/code&gt; is optional - no need to provide anything there.&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;Setup permissions (Application Roles) for API by modifying &lt;code class=&quot;highlighter-rouge&quot;&gt;appRoles&lt;/code&gt; section of App Manifest file:&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Create API (Resource Server) registration in Azure AD by following steps in &lt;a href=&quot;https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app&quot;&gt;https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app&lt;/a&gt;. Please, note that step with &lt;code class=&quot;highlighter-rouge&quot;&gt;Redirect URI&lt;/code&gt; is optional - no need to provide anything there.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Setup permissions (Application Roles) for API by modifying &lt;code class=&quot;highlighter-rouge&quot;&gt;appRoles&lt;/code&gt; section of App Manifest file:&lt;/p&gt;
+  &lt;/li&gt;
 &lt;/ol&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-json&quot; data-lang=&quot;json&quot;&gt;&lt;span class=&quot;err&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
@@ -361,7 +360,7 @@ The post will be divided into 2 parts:&lt;/p&gt;
   &lt;li&gt;
     &lt;p&gt;Register Client App in Azure AD by following steps in &lt;a href=&quot;https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app&quot;&gt;https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app&lt;/a&gt;. These are the same steps as in step #1 of &lt;code class=&quot;highlighter-rouge&quot;&gt;API Registration&lt;/code&gt;.&lt;/p&gt;
   &lt;/li&gt;
-  &lt;li&gt;Grant API permissions (App Roles) to Client App Registration using &lt;code class=&quot;highlighter-rouge&quot;&gt;Azure AD-&amp;gt;App Registrations-&amp;gt;&amp;lt;Your Client&amp;gt;-&amp;gt;API Permisions&lt;/code&gt; screen:
+  &lt;li&gt;Grant API permissions (App Roles) to Client App Registration using &lt;code class=&quot;highlighter-rouge&quot;&gt;Azure AD-&amp;gt;App Registrations-&amp;gt;&amp;lt;Your Client&amp;gt;-&amp;gt;API Permissions&lt;/code&gt; screen:
     &lt;ul&gt;
       &lt;li&gt;Click &lt;code class=&quot;highlighter-rouge&quot;&gt;Add a permission&lt;/code&gt; button&lt;/li&gt;
       &lt;li&gt;Select &lt;code class=&quot;highlighter-rouge&quot;&gt;My APIs-&amp;gt;&amp;lt;Your API&amp;gt;-&amp;gt;Application Permissions&lt;/code&gt;&lt;/li&gt;
@@ -428,7 +427,7 @@ The post will be divided into 2 parts:&lt;/p&gt;
 	&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;CallHiApiRole&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
   &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
   &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;sub&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;...&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
-  &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;tid&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&amp;lt;azure_ad_tenant_id&amp;gt;d&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;tid&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&amp;lt;azure_ad_tenant_id&amp;gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
   &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;uti&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;...&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
   &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;ver&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;1.0&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
 &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;Signature&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
@@ -441,7 +440,7 @@ The post will be divided into 2 parts:&lt;/p&gt;
 
 &lt;h3 id=&quot;references&quot;&gt;References:&lt;/h3&gt;
 &lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow&quot;&gt;Azure AD and the Oauth 2.0 Client Credentials Flow&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow&quot;&gt;Azure AD and the OAuth 2.0 Client Credentials Flow&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps&quot;&gt;How to: Add app roles in your application and receive them in the token&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;https://docs.microsoft.com/en-us/azure/active-directory/develop/reference-app-manifest&quot;&gt;Azure AD App Manifest Reference&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;https://docs.microsoft.com/en-us/azure/active-directory/develop/access-tokens&quot;&gt;Access Tokens in Azure AD&lt;/a&gt;&lt;/li&gt;
