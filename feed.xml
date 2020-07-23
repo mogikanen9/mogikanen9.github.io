@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>My Personal Blog</title>
+    <title>Vlad's Personal Blog</title>
     <description>This blog is an attempt to dive into personal blogging related to software development.
 </description>
     <link>https://mogikanen9.github.io/</link>
     <atom:link href="https://mogikanen9.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Fri, 08 May 2020 18:11:58 +0000</pubDate>
-    <lastBuildDate>Fri, 08 May 2020 18:11:58 +0000</lastBuildDate>
+    <pubDate>Thu, 23 Jul 2020 15:58:51 +0000</pubDate>
+    <lastBuildDate>Thu, 23 Jul 2020 15:58:51 +0000</lastBuildDate>
     <generator>Jekyll v3.8.6</generator>
     
       <item>
