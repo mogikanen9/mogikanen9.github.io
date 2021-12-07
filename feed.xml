@@ -6,9 +6,124 @@
 </description>
     <link>https://mogikanen9.github.io/</link>
     <atom:link href="https://mogikanen9.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Thu, 23 Jul 2020 20:56:03 +0000</pubDate>
-    <lastBuildDate>Thu, 23 Jul 2020 20:56:03 +0000</lastBuildDate>
+    <pubDate>Mon, 06 Dec 2021 21:22:39 -0500</pubDate>
+    <lastBuildDate>Mon, 06 Dec 2021 21:22:39 -0500</lastBuildDate>
     <generator>Jekyll v3.8.6</generator>
+    
+      <item>
+        <title>Open web application in new browser window from command line with POST</title>
+        <description>&lt;h2 id=&quot;open-web-application-in-a-new-browser-window-from-command-line-with-post&quot;&gt;Open web application in a new browser window from command line with POST&lt;/h2&gt;
+
+&lt;h3 id=&quot;introduction&quot;&gt;Introduction&lt;/h3&gt;
+&lt;p&gt;This post reproduces steps from &lt;a href=&quot;https://superuser.com/questions/1281950/open-chrome-with-method-post-body-data-on-specific-url&quot;&gt;Open chrome with method Post body data on specific Url&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;approach&quot;&gt;Approach&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Create HTML form with POST.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Set form submission event to “onload”  - submit form once html is opened&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Convert html form into BASE64&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Launch new browser window from command line and provide target URL as Data URL format using BASE64 version of HTML form&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;detailed-example&quot;&gt;Detailed example&lt;/h3&gt;
+
+&lt;p&gt;As an exmaple will be using a SpringBoot app which has to be opened/launched by submitting POST request to “/newbook” endpoint (which creates a new book).&lt;/p&gt;
+
+&lt;h4 id=&quot;target-app-the-one-to-be-opened&quot;&gt;Target App (the one to be opened)&lt;/h4&gt;
+
+&lt;p&gt;Spring MVC App which opens “ok” page/screen upin POST request which creates new book.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BookMVCController&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+ 
+    &lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BookRepository&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bookRepository&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+ 
+    &lt;span class=&quot;nd&quot;&gt;@PostMapping&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;/newbook&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;consumes&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;MediaType&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;APPLICATION_FORM_URLENCODED_VALUE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;})&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;postBookUrlEncoded&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@ModelAttribute&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BookDTO&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dto&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+ 
+        &lt;span class=&quot;nc&quot;&gt;Book&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;book&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Book&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;book&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dto&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;book&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setDesc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dto&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getDesc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;book&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setYear&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dto&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getYear&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;bookRepository&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;save&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;book&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;ok&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h4 id=&quot;html-form-with-post&quot;&gt;HTML Form with POST&lt;/h4&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;body&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;onload=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;document.getElementById('bookForm').submit()&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;form&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;action=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;http://localhost:8080/newbook&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;bookForm&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;method=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;post&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;input&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;name&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;value=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;book145&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;input&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;desc&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;value=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;desc2345&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;input&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;year&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;value=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;2025&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;input&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;submit&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;value=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;go&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/form&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/body&amp;gt;&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;html-form-encoded-in-base64&quot;&gt;HTML form encoded in BASE64&lt;/h4&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;PGJvZHkgb25sb2FkPSJkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnYm9va0Zvcm0nKS5zdWJtaXQoKSI+DQogICAgPGZvcm0gYWN0aW9uPSJodHRwOi8vbG9jYWxob3N0OjgwODAvbmV3Ym9vayIgaWQ9ImJvb2tGb3JtIiBtZXRob2Q9InBvc3QiPg0KICAgICAgPGlucHV0IG5hbWU9Im5hbWUiIHZhbHVlPSJib29rMTQ1Ij4NCiAgICAgIDxpbnB1dCBuYW1lPSJkZXNjIiB2YWx1ZT0iZGVzYzIzNDUiPg0KICAgICAgPGlucHV0IG5hbWU9InllYXIiIHZhbHVlPSIyMDI1Ij4NCiAgICAgIDxpbnB1dCB0eXBlPSJzdWJtaXQiIHZhbHVlPSJnbyI+DQogICAgPC9mb3JtPg0KICA8L2JvZHk+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;launch-web-app-from-command-line&quot;&gt;Launch web app from command line&lt;/h4&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;msedge.exe data:text/html;base64,PGJvZHkgb25sb2FkPSJkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnYm9va0Zvcm0nKS5zdWJtaXQoKSI+DQogICAgPGZvcm0gYWN0aW9uPSJodHRwOi8vbG9jYWxob3N0OjgwODAvbmV3Ym9vayIgaWQ9ImJvb2tGb3JtIiBtZXRob2Q9InBvc3QiPg0KICAgICAgPGlucHV0IG5hbWU9Im5hbWUiIHZhbHVlPSJib29rMTQ1Ij4NCiAgICAgIDxpbnB1dCBuYW1lPSJkZXNjIiB2YWx1ZT0iZGVzYzIzNDUiPg0KICAgICAgPGlucHV0IG5hbWU9InllYXIiIHZhbHVlPSIyMDI1Ij4NCiAgICAgIDxpbnB1dCB0eXBlPSJzdWJtaXQiIHZhbHVlPSJnbyI+DQogICAgPC9mb3JtPg0KICA8L2JvZHk+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;!-- Universal Code for Disqus  --&gt;&lt;/p&gt;
+&lt;div id=&quot;disqus_thread&quot;&gt;&lt;/div&gt;
+&lt;script&gt;
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    /*
+    var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+
+        s.src = '//https-mogikanen9-github-io.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+&lt;/script&gt;
+
+&lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
+
+</description>
+        <pubDate>Mon, 06 Dec 2021 04:00:01 -0500</pubDate>
+        <link>https://mogikanen9.github.io/web/http/post/url/2021/12/06/open-app-new-window-post-url.html</link>
+        <guid isPermaLink="true">https://mogikanen9.github.io/web/http/post/url/2021/12/06/open-app-new-window-post-url.html</guid>
+        
+        
+        <category>web</category>
+        
+        <category>http</category>
+        
+        <category>post</category>
+        
+        <category>url</category>
+        
+      </item>
     
       <item>
         <title>Secure REST API with OAuth 2.0 Client Credentials Flow using Azure AD. Part 2</title>
@@ -234,7 +349,7 @@ configuration of Azure AD from &lt;a href=&quot;spring-rest-azure-ad-oauth-p1.ht
 &lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
 
 </description>
-        <pubDate>Tue, 28 Apr 2020 15:00:01 +0000</pubDate>
+        <pubDate>Tue, 28 Apr 2020 11:00:01 -0400</pubDate>
         <link>https://mogikanen9.github.io/java/spring/rest/azuread/oauth2/2020/04/28/spring-rest-azure-ad-oauth-p2.html</link>
         <guid isPermaLink="true">https://mogikanen9.github.io/java/spring/rest/azuread/oauth2/2020/04/28/spring-rest-azure-ad-oauth-p2.html</guid>
         
@@ -474,7 +589,7 @@ The post will be divided into 2 parts:&lt;/p&gt;
 &lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
 
 </description>
-        <pubDate>Tue, 28 Apr 2020 14:00:01 +0000</pubDate>
+        <pubDate>Tue, 28 Apr 2020 10:00:01 -0400</pubDate>
         <link>https://mogikanen9.github.io/java/spring/rest/azuread/oauth2/2020/04/28/spring-rest-azure-ad-oauth-p1.html</link>
         <guid isPermaLink="true">https://mogikanen9.github.io/java/spring/rest/azuread/oauth2/2020/04/28/spring-rest-azure-ad-oauth-p1.html</guid>
         
@@ -594,7 +709,7 @@ steps:
 
 &lt;p&gt;References:&lt;/p&gt;
 &lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://docs.microsoft.com/en-us/azure/devops/pipelines/artifacts/maven?toc=%2Fazure%2Fdevops%2Fartifacts%2Ftoc.json&amp;amp;view=azdevops#&quot;&gt;Set up Azure Pipelines and Maven)&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://docs.microsoft.com/en-us/azure/devops/pipelines/artifacts/maven?toc=%2Fazure%2Fdevops%2Fartifacts%2Ftoc.json&amp;amp;view=azdevops#&quot;&gt;Set up Azure Pipelines and Maven&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;https://docs.microsoft.com/en-us/azure/devops/artifacts/&quot;&gt;Azure DevOps Artifacts&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;https://github.com/mogikanen9/blog-demo-projects/edit/master/simple-lib/.gitignore&quot;&gt;Demo project source code&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
@@ -625,7 +740,7 @@ steps:
 &lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
 
 </description>
-        <pubDate>Sat, 26 Jan 2019 15:44:19 +0000</pubDate>
+        <pubDate>Sat, 26 Jan 2019 10:44:19 -0500</pubDate>
         <link>https://mogikanen9.github.io/devops/ci/2019/01/26/azure-devops-maven-artifacts.html</link>
         <guid isPermaLink="true">https://mogikanen9.github.io/devops/ci/2019/01/26/azure-devops-maven-artifacts.html</guid>
         
@@ -851,7 +966,7 @@ module.exports &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&qu
 &lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
 
 </description>
-        <pubDate>Mon, 21 May 2018 16:07:00 +0000</pubDate>
+        <pubDate>Mon, 21 May 2018 12:07:00 -0400</pubDate>
         <link>https://mogikanen9.github.io/spfx/react/karma/2018/05/21/spfx-karma-config.html</link>
         <guid isPermaLink="true">https://mogikanen9.github.io/spfx/react/karma/2018/05/21/spfx-karma-config.html</guid>
         
@@ -984,7 +1099,7 @@ module.exports &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&qu
 &lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
 
 </description>
-        <pubDate>Sat, 08 Apr 2017 23:05:09 +0000</pubDate>
+        <pubDate>Sat, 08 Apr 2017 19:05:09 -0400</pubDate>
         <link>https://mogikanen9.github.io/java/spring/jcache/hazelcast/2017/04/08/spring-boot-hazelcast-jcache.html</link>
         <guid isPermaLink="true">https://mogikanen9.github.io/java/spring/jcache/hazelcast/2017/04/08/spring-boot-hazelcast-jcache.html</guid>
         
@@ -1225,7 +1340,7 @@ SLCertificateKeyFile &quot;/private/etc/apache2/server.key&quot;
 &lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
 
 </description>
-        <pubDate>Wed, 28 Dec 2016 15:15:49 +0000</pubDate>
+        <pubDate>Wed, 28 Dec 2016 10:15:49 -0500</pubDate>
         <link>https://mogikanen9.github.io/apache/shibboleth/2016/12/28/configure-shibboleth-sp-on-mac.html</link>
         <guid isPermaLink="true">https://mogikanen9.github.io/apache/shibboleth/2016/12/28/configure-shibboleth-sp-on-mac.html</guid>
         
@@ -1339,9 +1454,9 @@ ca.uhn.hl7v2.model.v24.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v24.message.ORU
 &lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
 
 </description>
-        <pubDate>Wed, 05 Oct 2016 02:55:49 +0000</pubDate>
-        <link>https://mogikanen9.github.io/java/hapi/2016/10/05/first-steps-with-hapi-p2.html</link>
-        <guid isPermaLink="true">https://mogikanen9.github.io/java/hapi/2016/10/05/first-steps-with-hapi-p2.html</guid>
+        <pubDate>Tue, 04 Oct 2016 22:55:49 -0400</pubDate>
+        <link>https://mogikanen9.github.io/java/hapi/2016/10/04/first-steps-with-hapi-p2.html</link>
+        <guid isPermaLink="true">https://mogikanen9.github.io/java/hapi/2016/10/04/first-steps-with-hapi-p2.html</guid>
         
         
         <category>java</category>
@@ -1422,9 +1537,9 @@ ca.uhn.hl7v2.model.v24.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v24.message.ORU
 &lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
 
 </description>
-        <pubDate>Mon, 26 Sep 2016 02:55:49 +0000</pubDate>
-        <link>https://mogikanen9.github.io/java/hapi/2016/09/26/first-steps-with-hapi.html</link>
-        <guid isPermaLink="true">https://mogikanen9.github.io/java/hapi/2016/09/26/first-steps-with-hapi.html</guid>
+        <pubDate>Sun, 25 Sep 2016 22:55:49 -0400</pubDate>
+        <link>https://mogikanen9.github.io/java/hapi/2016/09/25/first-steps-with-hapi.html</link>
+        <guid isPermaLink="true">https://mogikanen9.github.io/java/hapi/2016/09/25/first-steps-with-hapi.html</guid>
         
         
         <category>java</category>
@@ -1504,62 +1619,9 @@ ca.uhn.hl7v2.model.v24.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v24.message.ORU
 &lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
 
 </description>
-        <pubDate>Sat, 24 Sep 2016 01:15:49 +0000</pubDate>
-        <link>https://mogikanen9.github.io/jekyll/update/2016/09/24/select-test-coverage-plugin.html</link>
-        <guid isPermaLink="true">https://mogikanen9.github.io/jekyll/update/2016/09/24/select-test-coverage-plugin.html</guid>
-        
-        
-        <category>jekyll</category>
-        
-        <category>update</category>
-        
-      </item>
-    
-      <item>
-        <title>Welcome to Jekyll!</title>
-        <description>&lt;p&gt;You’ll find this post in your &lt;code class=&quot;highlighter-rouge&quot;&gt;_posts&lt;/code&gt; directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run &lt;code class=&quot;highlighter-rouge&quot;&gt;jekyll serve&lt;/code&gt;, which launches a web server and auto-regenerates your site when a file is updated.&lt;/p&gt;
-
-&lt;p&gt;To add new posts, simply add a file in the &lt;code class=&quot;highlighter-rouge&quot;&gt;_posts&lt;/code&gt; directory that follows the convention &lt;code class=&quot;highlighter-rouge&quot;&gt;YYYY-MM-DD-name-of-post.ext&lt;/code&gt; and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.&lt;/p&gt;
-
-&lt;p&gt;Jekyll also offers powerful support for code snippets:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;print_hi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-  &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Hi, &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;print_hi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'Tom'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;c1&quot;&gt;#=&amp;gt; prints 'Hi, Tom' to STDOUT.&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;Check out the &lt;a href=&quot;http://jekyllrb.com/docs/home&quot;&gt;Jekyll docs&lt;/a&gt; for more info on how to get the most out of Jekyll. File all bugs/feature requests at &lt;a href=&quot;https://github.com/jekyll/jekyll&quot;&gt;Jekyll’s GitHub repo&lt;/a&gt;. If you have questions, you can ask them on &lt;a href=&quot;https://talk.jekyllrb.com/&quot;&gt;Jekyll Talk&lt;/a&gt;.&lt;/p&gt;
-
-&lt;!-- Universal Code for Disqus  --&gt;
-&lt;div id=&quot;disqus_thread&quot;&gt;&lt;/div&gt;
-&lt;script&gt;
-    /**
-     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
-     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
-     */
-    /*
-    var disqus_config = function () {
-        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-    };
-    */
-    (function() {  // DON'T EDIT BELOW THIS LINE
-        var d = document, s = d.createElement('script');
-
-        s.src = '//https-mogikanen9-github-io.disqus.com/embed.js';
-
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-&lt;/script&gt;
-
-&lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
-
-</description>
-        <pubDate>Wed, 21 Sep 2016 01:50:49 +0000</pubDate>
-        <link>https://mogikanen9.github.io/jekyll/update/2016/09/21/welcome-to-jekyll.html</link>
-        <guid isPermaLink="true">https://mogikanen9.github.io/jekyll/update/2016/09/21/welcome-to-jekyll.html</guid>
+        <pubDate>Fri, 23 Sep 2016 21:15:49 -0400</pubDate>
+        <link>https://mogikanen9.github.io/jekyll/update/2016/09/23/select-test-coverage-plugin.html</link>
+        <guid isPermaLink="true">https://mogikanen9.github.io/jekyll/update/2016/09/23/select-test-coverage-plugin.html</guid>
         
         
         <category>jekyll</category>
