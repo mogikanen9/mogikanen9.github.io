@@ -6,18 +6,170 @@
 </description>
     <link>https://mogikanen9.github.io/</link>
     <atom:link href="https://mogikanen9.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Mon, 06 Dec 2021 21:22:39 -0500</pubDate>
-    <lastBuildDate>Mon, 06 Dec 2021 21:22:39 -0500</lastBuildDate>
+    <pubDate>Fri, 24 Dec 2021 10:06:02 -0600</pubDate>
+    <lastBuildDate>Fri, 24 Dec 2021 10:06:02 -0600</lastBuildDate>
     <generator>Jekyll v3.8.6</generator>
     
       <item>
-        <title>Open web application in new browser window from command line with POST</title>
-        <description>&lt;h2 id=&quot;open-web-application-in-a-new-browser-window-from-command-line-with-post&quot;&gt;Open web application in a new browser window from command line with POST&lt;/h2&gt;
+        <title>Use one Azure DevOps pipeline to run PR and main builds separately</title>
+        <description>&lt;h2 id=&quot;introduction&quot;&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;For simplicity I want to have one Azure DevOps CI pipeline to build both PR and main branch of my Java app.&lt;/p&gt;
 
-&lt;h3 id=&quot;introduction&quot;&gt;Introduction&lt;/h3&gt;
+&lt;h2 id=&quot;problem&quot;&gt;Problem&lt;/h2&gt;
+&lt;p&gt;PR build should focus on building code and running tests and not perform deploy step (publish artefact to a repo) - in other words those PR and main build steps have to be different and not interfer.&lt;/p&gt;
+
+&lt;h2 id=&quot;solution&quot;&gt;Solution&lt;/h2&gt;
+&lt;p&gt;Use &lt;a href=&quot;https://docs.microsoft.com/en-us/azure/devops/pipelines/process/conditions?view=azure-devops&amp;amp;tabs=yaml&quot;&gt;condition&lt;/a&gt; feature of pipelines and check the reason of the build:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;if reason is PR (&lt;code class=&quot;highlighter-rouge&quot;&gt;eq(variables['Build.Reason'], 'PullRequest')&lt;/code&gt;) - PR task should be executed and main should be skipped&lt;/li&gt;
+  &lt;li&gt;if reason is not PR (&lt;code class=&quot;highlighter-rouge&quot;&gt;ne(variables['Build.Reason'], 'PullRequest')&lt;/code&gt;) - main task should be executed and PR should be skipped&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;example&quot;&gt;Example&lt;/h3&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;azure-pipelines.yml&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-yml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;
+&lt;span class=&quot;nn&quot;&gt;---&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;jobs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;job&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Windows2019_with_Java11&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;pool&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;vmImage&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;windows-2019'&lt;/span&gt;
+ 
+  &lt;span class=&quot;na&quot;&gt;steps&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;task&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Maven@3&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;displayName&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;Build/Verify&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;PR'&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;condition&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;eq(variables['Build.Reason'], 'PullRequest')&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;inputs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;mavenPomFile&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;pom.xml'&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;goals&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;verify'&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;jdkVersionOption&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;1.11'&lt;/span&gt;
+  &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;task&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Maven@3&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;displayName&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;Build/Deploy'&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;condition&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;ne(variables['Build.Reason'], 'PullRequest')&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;inputs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;mavenPomFile&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;pom.xml'&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;goals&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;verify'&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;jdkVersionOption&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;1.11'&lt;/span&gt;
+  &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;task&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;PublishTestResults@2&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;displayName&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;Publish&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;Test&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;Results&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;**\TEST-*.xml'&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;inputs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;mergeTestResults&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;true&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Great. It works!&lt;/p&gt;
+
+&lt;h2 id=&quot;is-there-a-way-to-eliminate-dublication&quot;&gt;Is there a way to eliminate dublication?&lt;/h2&gt;
+
+&lt;p&gt;Yes - using &lt;a href=&quot;https://docs.microsoft.com/en-us/azure/devops/pipelines/process/templates?view=azure-devops&quot;&gt;templates&lt;/a&gt; feature of pipelines.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Create steps.yml template file&lt;/li&gt;
+  &lt;li&gt;Extract build taks into template&lt;/li&gt;
+  &lt;li&gt;Parametrize template&lt;/li&gt;
+  &lt;li&gt;Replace tasks in azure-pipelines.yml with template&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;example-1&quot;&gt;Example&lt;/h3&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;steps.yml&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-yml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;
+&lt;span class=&quot;nn&quot;&gt;---&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;parameters&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;mavenTaskName&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;mavenTaskGoals&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;mavenTaskCondition&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;steps&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;task&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Maven@3&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;displayName&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;$&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;condition&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;$&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;inputs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;mavenPomFile&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;pom.xml'&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;goals&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;$&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;jdkVersionOption&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;1.11'&lt;/span&gt; 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;azure-pipelines.yml&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-yml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;
+&lt;span class=&quot;nn&quot;&gt;---&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;jobs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;job&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Windows2019_with_Java11&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;pool&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;vmImage&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;windows-2019'&lt;/span&gt;
+ 
+  &lt;span class=&quot;na&quot;&gt;steps&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;steps.yml&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;parameters&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;mavenTaskName&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;Build/Verify&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;PR'&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;mavenTaskGoals&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;verify'&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;mavenTaskCondition&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;eq(variables['Build.Reason'], 'PullRequest')&lt;/span&gt;
+  &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;steps.yml&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;parameters&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;mavenTaskName&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;Build/Deploy'&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;mavenTaskGoals&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;deploy'&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;mavenTaskCondition&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;ne(variables['Build.Reason'], 'PullRequest')&lt;/span&gt;
+  &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;task&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;PublishTestResults@2&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;displayName&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;Publish&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;Test&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;Results&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;**\TEST-*.xml'&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;inputs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;mergeTestResults&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;true&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;That’s it.&lt;/p&gt;
+
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;Keeping all steps in one pipeline config file (vs having multiple yml configs for different needs) should simplify maintenance.&lt;/li&gt;
+  &lt;li&gt;In case the steps for PR and main builds are significantly different the template can become too complex so having two separate pipeleines might be a better option.&lt;/li&gt;
+  &lt;li&gt;The approach descibed above is not the only or the best option - it is just an option.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;!-- Universal Code for Disqus  --&gt;&lt;/p&gt;
+&lt;div id=&quot;disqus_thread&quot;&gt;&lt;/div&gt;
+&lt;script&gt;
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    /*
+    var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+
+        s.src = '//https-mogikanen9-github-io.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+&lt;/script&gt;
+
+&lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
+
+</description>
+        <pubDate>Thu, 23 Dec 2021 03:00:01 -0600</pubDate>
+        <link>https://mogikanen9.github.io/devops/ci/2021/12/23/same-azure-pipeline-for-build-and-pr.html</link>
+        <guid isPermaLink="true">https://mogikanen9.github.io/devops/ci/2021/12/23/same-azure-pipeline-for-build-and-pr.html</guid>
+        
+        
+        <category>devops</category>
+        
+        <category>ci</category>
+        
+      </item>
+    
+      <item>
+        <title>Open web application in new browser window from command line with POST</title>
+        <description>&lt;h2 id=&quot;introduction&quot;&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;This post reproduces steps from &lt;a href=&quot;https://superuser.com/questions/1281950/open-chrome-with-method-post-body-data-on-specific-url&quot;&gt;Open chrome with method Post body data on specific Url&lt;/a&gt;.&lt;/p&gt;
 
-&lt;h3 id=&quot;approach&quot;&gt;Approach&lt;/h3&gt;
+&lt;h2 id=&quot;approach&quot;&gt;Approach&lt;/h2&gt;
 
 &lt;ol&gt;
   &lt;li&gt;
@@ -34,11 +186,11 @@
   &lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;h3 id=&quot;detailed-example&quot;&gt;Detailed example&lt;/h3&gt;
+&lt;h2 id=&quot;detailed-example&quot;&gt;Detailed example&lt;/h2&gt;
 
 &lt;p&gt;As an exmaple will be using a SpringBoot app which has to be opened/launched by submitting POST request to “/newbook” endpoint (which creates a new book).&lt;/p&gt;
 
-&lt;h4 id=&quot;target-app-the-one-to-be-opened&quot;&gt;Target App (the one to be opened)&lt;/h4&gt;
+&lt;h3 id=&quot;target-app-the-one-to-be-opened&quot;&gt;Target App (the one to be opened)&lt;/h3&gt;
 
 &lt;p&gt;Spring MVC App which opens “ok” page/screen upin POST request which creates new book.&lt;/p&gt;
 
@@ -60,7 +212,7 @@
 &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h4 id=&quot;html-form-with-post&quot;&gt;HTML Form with POST&lt;/h4&gt;
+&lt;h3 id=&quot;html-form-with-post&quot;&gt;HTML Form with POST&lt;/h3&gt;
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;
 &lt;span class=&quot;nt&quot;&gt;&amp;lt;body&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;onload=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;document.getElementById('bookForm').submit()&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
@@ -74,12 +226,12 @@
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;h4 id=&quot;html-form-encoded-in-base64&quot;&gt;HTML form encoded in BASE64&lt;/h4&gt;
+&lt;h3 id=&quot;html-form-encoded-in-base64&quot;&gt;HTML form encoded in BASE64&lt;/h3&gt;
 
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;PGJvZHkgb25sb2FkPSJkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnYm9va0Zvcm0nKS5zdWJtaXQoKSI+DQogICAgPGZvcm0gYWN0aW9uPSJodHRwOi8vbG9jYWxob3N0OjgwODAvbmV3Ym9vayIgaWQ9ImJvb2tGb3JtIiBtZXRob2Q9InBvc3QiPg0KICAgICAgPGlucHV0IG5hbWU9Im5hbWUiIHZhbHVlPSJib29rMTQ1Ij4NCiAgICAgIDxpbnB1dCBuYW1lPSJkZXNjIiB2YWx1ZT0iZGVzYzIzNDUiPg0KICAgICAgPGlucHV0IG5hbWU9InllYXIiIHZhbHVlPSIyMDI1Ij4NCiAgICAgIDxpbnB1dCB0eXBlPSJzdWJtaXQiIHZhbHVlPSJnbyI+DQogICAgPC9mb3JtPg0KICA8L2JvZHk+
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;h4 id=&quot;launch-web-app-from-command-line&quot;&gt;Launch web app from command line&lt;/h4&gt;
+&lt;h3 id=&quot;launch-web-app-from-command-line&quot;&gt;Launch web app from command line&lt;/h3&gt;
 
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;msedge.exe data:text/html;base64,PGJvZHkgb25sb2FkPSJkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnYm9va0Zvcm0nKS5zdWJtaXQoKSI+DQogICAgPGZvcm0gYWN0aW9uPSJodHRwOi8vbG9jYWxob3N0OjgwODAvbmV3Ym9vayIgaWQ9ImJvb2tGb3JtIiBtZXRob2Q9InBvc3QiPg0KICAgICAgPGlucHV0IG5hbWU9Im5hbWUiIHZhbHVlPSJib29rMTQ1Ij4NCiAgICAgIDxpbnB1dCBuYW1lPSJkZXNjIiB2YWx1ZT0iZGVzYzIzNDUiPg0KICAgICAgPGlucHV0IG5hbWU9InllYXIiIHZhbHVlPSIyMDI1Ij4NCiAgICAgIDxpbnB1dCB0eXBlPSJzdWJtaXQiIHZhbHVlPSJnbyI+DQogICAgPC9mb3JtPg0KICA8L2JvZHk+
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
@@ -110,7 +262,7 @@
 &lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
 
 </description>
-        <pubDate>Mon, 06 Dec 2021 04:00:01 -0500</pubDate>
+        <pubDate>Mon, 06 Dec 2021 03:00:01 -0600</pubDate>
         <link>https://mogikanen9.github.io/web/http/post/url/2021/12/06/open-app-new-window-post-url.html</link>
         <guid isPermaLink="true">https://mogikanen9.github.io/web/http/post/url/2021/12/06/open-app-new-window-post-url.html</guid>
         
@@ -349,7 +501,7 @@ configuration of Azure AD from &lt;a href=&quot;spring-rest-azure-ad-oauth-p1.ht
 &lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
 
 </description>
-        <pubDate>Tue, 28 Apr 2020 11:00:01 -0400</pubDate>
+        <pubDate>Tue, 28 Apr 2020 10:00:01 -0500</pubDate>
         <link>https://mogikanen9.github.io/java/spring/rest/azuread/oauth2/2020/04/28/spring-rest-azure-ad-oauth-p2.html</link>
         <guid isPermaLink="true">https://mogikanen9.github.io/java/spring/rest/azuread/oauth2/2020/04/28/spring-rest-azure-ad-oauth-p2.html</guid>
         
@@ -589,7 +741,7 @@ The post will be divided into 2 parts:&lt;/p&gt;
 &lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
 
 </description>
-        <pubDate>Tue, 28 Apr 2020 10:00:01 -0400</pubDate>
+        <pubDate>Tue, 28 Apr 2020 09:00:01 -0500</pubDate>
         <link>https://mogikanen9.github.io/java/spring/rest/azuread/oauth2/2020/04/28/spring-rest-azure-ad-oauth-p1.html</link>
         <guid isPermaLink="true">https://mogikanen9.github.io/java/spring/rest/azuread/oauth2/2020/04/28/spring-rest-azure-ad-oauth-p1.html</guid>
         
@@ -740,7 +892,7 @@ steps:
 &lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
 
 </description>
-        <pubDate>Sat, 26 Jan 2019 10:44:19 -0500</pubDate>
+        <pubDate>Sat, 26 Jan 2019 09:44:19 -0600</pubDate>
         <link>https://mogikanen9.github.io/devops/ci/2019/01/26/azure-devops-maven-artifacts.html</link>
         <guid isPermaLink="true">https://mogikanen9.github.io/devops/ci/2019/01/26/azure-devops-maven-artifacts.html</guid>
         
@@ -966,7 +1118,7 @@ module.exports &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&qu
 &lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
 
 </description>
-        <pubDate>Mon, 21 May 2018 12:07:00 -0400</pubDate>
+        <pubDate>Mon, 21 May 2018 11:07:00 -0500</pubDate>
         <link>https://mogikanen9.github.io/spfx/react/karma/2018/05/21/spfx-karma-config.html</link>
         <guid isPermaLink="true">https://mogikanen9.github.io/spfx/react/karma/2018/05/21/spfx-karma-config.html</guid>
         
@@ -1099,7 +1251,7 @@ module.exports &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&qu
 &lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
 
 </description>
-        <pubDate>Sat, 08 Apr 2017 19:05:09 -0400</pubDate>
+        <pubDate>Sat, 08 Apr 2017 18:05:09 -0500</pubDate>
         <link>https://mogikanen9.github.io/java/spring/jcache/hazelcast/2017/04/08/spring-boot-hazelcast-jcache.html</link>
         <guid isPermaLink="true">https://mogikanen9.github.io/java/spring/jcache/hazelcast/2017/04/08/spring-boot-hazelcast-jcache.html</guid>
         
@@ -1340,7 +1492,7 @@ SLCertificateKeyFile &quot;/private/etc/apache2/server.key&quot;
 &lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
 
 </description>
-        <pubDate>Wed, 28 Dec 2016 10:15:49 -0500</pubDate>
+        <pubDate>Wed, 28 Dec 2016 09:15:49 -0600</pubDate>
         <link>https://mogikanen9.github.io/apache/shibboleth/2016/12/28/configure-shibboleth-sp-on-mac.html</link>
         <guid isPermaLink="true">https://mogikanen9.github.io/apache/shibboleth/2016/12/28/configure-shibboleth-sp-on-mac.html</guid>
         
@@ -1454,7 +1606,7 @@ ca.uhn.hl7v2.model.v24.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v24.message.ORU
 &lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
 
 </description>
-        <pubDate>Tue, 04 Oct 2016 22:55:49 -0400</pubDate>
+        <pubDate>Tue, 04 Oct 2016 21:55:49 -0500</pubDate>
         <link>https://mogikanen9.github.io/java/hapi/2016/10/04/first-steps-with-hapi-p2.html</link>
         <guid isPermaLink="true">https://mogikanen9.github.io/java/hapi/2016/10/04/first-steps-with-hapi-p2.html</guid>
         
@@ -1537,7 +1689,7 @@ ca.uhn.hl7v2.model.v24.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v24.message.ORU
 &lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
 
 </description>
-        <pubDate>Sun, 25 Sep 2016 22:55:49 -0400</pubDate>
+        <pubDate>Sun, 25 Sep 2016 21:55:49 -0500</pubDate>
         <link>https://mogikanen9.github.io/java/hapi/2016/09/25/first-steps-with-hapi.html</link>
         <guid isPermaLink="true">https://mogikanen9.github.io/java/hapi/2016/09/25/first-steps-with-hapi.html</guid>
         
@@ -1545,88 +1697,6 @@ ca.uhn.hl7v2.model.v24.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v24.message.ORU
         <category>java</category>
         
         <category>hapi</category>
-        
-      </item>
-    
-      <item>
-        <title>Cobertura and JaCoCo: using test coverage plugin</title>
-        <description>&lt;p&gt;Recently I decided to configure a test coverage plugin for one of my pet projects to have a better visibility of my unit tests. At work we use &lt;a href=&quot;http://www.sonarqube.org/&quot;&gt;SonarQube&lt;/a&gt; - too much for my purpose. I immediately looked at Cobertura and its &lt;a href=&quot;http://www.mojohaus.org/cobertura-maven-plugin/&quot;&gt;Maven plugin&lt;/a&gt;. Several years ago I setup Cobertura for couple of real projects at our CI server and it worked great. The setup was straightforward and I started to enjoy my test coverage report. My happy time was short - once I started to use lambdas (introduced in Java 8) extensively the plugin started to struggle with analysis. The plugin failed to check those classes and generated a errors like:&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;java.lang.IllegalArgumentException: INVOKESPECIAL/STATIC on interfaces require ASM 5
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;I was using version 2.7 which supposed to support Java 8. Once googled I found that I am not the only one who is facing those issues. People reported same issues at their &lt;a href=&quot;https://github.com/cobertura/cobertura/issues/166&quot;&gt;GitHub page&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;Dilemma: should I spent more time digging into it or try an alternative?&lt;/p&gt;
-
-&lt;p&gt;I knew that SonarQube was using &lt;a href=&quot;http://www.eclemma.org/jacoco/&quot;&gt;JaCoCo&lt;/a&gt; and I also used Emma Eclipse plugin long time ago and it also worked quite well. Decided to try JaCoco. The setup was not as neat as for Cobertura plugin but I made it working and it worked perfectly with Java 8.&lt;/p&gt;
-
-&lt;p&gt;The final Maven plugin configuration is below.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;build&amp;gt;
-	...
-  &amp;lt;plugin&amp;gt;
-    &amp;lt;groupId&amp;gt;org.jacoco&amp;lt;/groupId&amp;gt;
-    &amp;lt;artifactId&amp;gt;jacoco-maven-plugin&amp;lt;/artifactId&amp;gt;
-    &amp;lt;version&amp;gt;0.7.7.201606060606&amp;lt;/version&amp;gt;
-    &amp;lt;configuration&amp;gt;
-      &amp;lt;destFile&amp;gt;${basedir}/target/coverage-reports/jacoco-unit.exec&amp;lt;/destFile&amp;gt;
-      &amp;lt;dataFile&amp;gt;${basedir}/target/coverage-reports/jacoco-unit.exec&amp;lt;/dataFile&amp;gt;
-      &amp;lt;/configuration&amp;gt;
-        &amp;lt;executions&amp;gt;
-          &amp;lt;execution&amp;gt;
-            &amp;lt;id&amp;gt;jacoco-initialize&amp;lt;/id&amp;gt;
-            &amp;lt;goals&amp;gt;
-              &amp;lt;goal&amp;gt;prepare-agent&amp;lt;/goal&amp;gt;
-            &amp;lt;/goals&amp;gt;
-          &amp;lt;/execution&amp;gt;
-          &amp;lt;execution&amp;gt;
-            &amp;lt;id&amp;gt;jacoco-site&amp;lt;/id&amp;gt;
-            &amp;lt;phase&amp;gt;package&amp;lt;/phase&amp;gt;
-            &amp;lt;goals&amp;gt;
-              &amp;lt;goal&amp;gt;report&amp;lt;/goal&amp;gt;
-              &amp;lt;/goals&amp;gt;
-          &amp;lt;/execution&amp;gt;
-        &amp;lt;/executions&amp;gt;
-      &amp;lt;/plugin&amp;gt;
-    &amp;lt;/plugins&amp;gt;
-    ...
-&amp;lt;/build&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;!-- Universal Code for Disqus  --&gt;
-&lt;div id=&quot;disqus_thread&quot;&gt;&lt;/div&gt;
-&lt;script&gt;
-    /**
-     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
-     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
-     */
-    /*
-    var disqus_config = function () {
-        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-    };
-    */
-    (function() {  // DON'T EDIT BELOW THIS LINE
-        var d = document, s = d.createElement('script');
-
-        s.src = '//https-mogikanen9-github-io.disqus.com/embed.js';
-
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-&lt;/script&gt;
-
-&lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
-
-</description>
-        <pubDate>Fri, 23 Sep 2016 21:15:49 -0400</pubDate>
-        <link>https://mogikanen9.github.io/jekyll/update/2016/09/23/select-test-coverage-plugin.html</link>
-        <guid isPermaLink="true">https://mogikanen9.github.io/jekyll/update/2016/09/23/select-test-coverage-plugin.html</guid>
-        
-        
-        <category>jekyll</category>
-        
-        <category>update</category>
         
       </item>
     

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Use one Azure DevOps pipeline to run PR and main builds separately | Vlad’s Personal Blog</title>
+<meta name="generator" content="Jekyll v3.8.6" />
+<meta property="og:title" content="Use one Azure DevOps pipeline to run PR and main builds separately" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Introduction For simplicity I want to have one Azure DevOps CI pipeline to build both PR and main branch of my Java app. Problem PR build should focus on building code and running tests and not perform deploy step (publish artefact to a repo) - in other words those PR and main build steps have to be different and not interfer. Solution Use condition feature of pipelines and check the reason of the build: if reason is PR (eq(variables[&#39;Build.Reason&#39;], &#39;PullRequest&#39;)) - PR task should be executed and main should be skipped if reason is not PR (ne(variables[&#39;Build.Reason&#39;], &#39;PullRequest&#39;)) - main task should be executed and PR should be skipped Example azure-pipelines.yml --- jobs: - job: Windows2019_with_Java11 pool: vmImage: &#39;windows-2019&#39; steps: - task: Maven@3 displayName: &#39;Build/Verify PR&#39; condition: eq(variables[&#39;Build.Reason&#39;], &#39;PullRequest&#39;) inputs: mavenPomFile: &#39;pom.xml&#39; goals: &#39;verify&#39; jdkVersionOption: &#39;1.11&#39; - task: Maven@3 displayName: &#39;Build/Deploy&#39; condition: ne(variables[&#39;Build.Reason&#39;], &#39;PullRequest&#39;) inputs: mavenPomFile: &#39;pom.xml&#39; goals: &#39;verify&#39; jdkVersionOption: &#39;1.11&#39; - task: PublishTestResults@2 displayName: &#39;Publish Test Results **\TEST-*.xml&#39; inputs: mergeTestResults: true Great. It works! Is there a way to eliminate dublication? Yes - using templates feature of pipelines. Create steps.yml template file Extract build taks into template Parametrize template Replace tasks in azure-pipelines.yml with template Example steps.yml --- parameters: mavenTaskName: &#39;&#39; mavenTaskGoals: &#39;&#39; mavenTaskCondition: &#39;&#39; steps: - task: Maven@3 displayName: $ condition: $ inputs: mavenPomFile: &#39;pom.xml&#39; goals: $ jdkVersionOption: &#39;1.11&#39; azure-pipelines.yml --- jobs: - job: Windows2019_with_Java11 pool: vmImage: &#39;windows-2019&#39; steps: - template: steps.yml parameters: mavenTaskName: &#39;Build/Verify PR&#39; mavenTaskGoals: &#39;verify&#39; mavenTaskCondition: eq(variables[&#39;Build.Reason&#39;], &#39;PullRequest&#39;) - template: steps.yml parameters: mavenTaskName: &#39;Build/Deploy&#39; mavenTaskGoals: &#39;deploy&#39; mavenTaskCondition: ne(variables[&#39;Build.Reason&#39;], &#39;PullRequest&#39;) - task: PublishTestResults@2 displayName: &#39;Publish Test Results **\TEST-*.xml&#39; inputs: mergeTestResults: true That’s it. Conclusion Keeping all steps in one pipeline config file (vs having multiple yml configs for different needs) should simplify maintenance. In case the steps for PR and main builds are significantly different the template can become too complex so having two separate pipeleines might be a better option. The approach descibed above is not the only or the best option - it is just an option. Please enable JavaScript to view the comments powered by Disqus." />
+<meta property="og:description" content="Introduction For simplicity I want to have one Azure DevOps CI pipeline to build both PR and main branch of my Java app. Problem PR build should focus on building code and running tests and not perform deploy step (publish artefact to a repo) - in other words those PR and main build steps have to be different and not interfer. Solution Use condition feature of pipelines and check the reason of the build: if reason is PR (eq(variables[&#39;Build.Reason&#39;], &#39;PullRequest&#39;)) - PR task should be executed and main should be skipped if reason is not PR (ne(variables[&#39;Build.Reason&#39;], &#39;PullRequest&#39;)) - main task should be executed and PR should be skipped Example azure-pipelines.yml --- jobs: - job: Windows2019_with_Java11 pool: vmImage: &#39;windows-2019&#39; steps: - task: Maven@3 displayName: &#39;Build/Verify PR&#39; condition: eq(variables[&#39;Build.Reason&#39;], &#39;PullRequest&#39;) inputs: mavenPomFile: &#39;pom.xml&#39; goals: &#39;verify&#39; jdkVersionOption: &#39;1.11&#39; - task: Maven@3 displayName: &#39;Build/Deploy&#39; condition: ne(variables[&#39;Build.Reason&#39;], &#39;PullRequest&#39;) inputs: mavenPomFile: &#39;pom.xml&#39; goals: &#39;verify&#39; jdkVersionOption: &#39;1.11&#39; - task: PublishTestResults@2 displayName: &#39;Publish Test Results **\TEST-*.xml&#39; inputs: mergeTestResults: true Great. It works! Is there a way to eliminate dublication? Yes - using templates feature of pipelines. Create steps.yml template file Extract build taks into template Parametrize template Replace tasks in azure-pipelines.yml with template Example steps.yml --- parameters: mavenTaskName: &#39;&#39; mavenTaskGoals: &#39;&#39; mavenTaskCondition: &#39;&#39; steps: - task: Maven@3 displayName: $ condition: $ inputs: mavenPomFile: &#39;pom.xml&#39; goals: $ jdkVersionOption: &#39;1.11&#39; azure-pipelines.yml --- jobs: - job: Windows2019_with_Java11 pool: vmImage: &#39;windows-2019&#39; steps: - template: steps.yml parameters: mavenTaskName: &#39;Build/Verify PR&#39; mavenTaskGoals: &#39;verify&#39; mavenTaskCondition: eq(variables[&#39;Build.Reason&#39;], &#39;PullRequest&#39;) - template: steps.yml parameters: mavenTaskName: &#39;Build/Deploy&#39; mavenTaskGoals: &#39;deploy&#39; mavenTaskCondition: ne(variables[&#39;Build.Reason&#39;], &#39;PullRequest&#39;) - task: PublishTestResults@2 displayName: &#39;Publish Test Results **\TEST-*.xml&#39; inputs: mergeTestResults: true That’s it. Conclusion Keeping all steps in one pipeline config file (vs having multiple yml configs for different needs) should simplify maintenance. In case the steps for PR and main builds are significantly different the template can become too complex so having two separate pipeleines might be a better option. The approach descibed above is not the only or the best option - it is just an option. Please enable JavaScript to view the comments powered by Disqus." />
+<link rel="canonical" href="https://mogikanen9.github.io/devops/ci/2021/12/23/same-azure-pipeline-for-build-and-pr.html" />
+<meta property="og:url" content="https://mogikanen9.github.io/devops/ci/2021/12/23/same-azure-pipeline-for-build-and-pr.html" />
+<meta property="og:site_name" content="Vlad’s Personal Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-12-23T03:00:01-06:00" />
+<script type="application/ld+json">
+{"description":"Introduction For simplicity I want to have one Azure DevOps CI pipeline to build both PR and main branch of my Java app. Problem PR build should focus on building code and running tests and not perform deploy step (publish artefact to a repo) - in other words those PR and main build steps have to be different and not interfer. Solution Use condition feature of pipelines and check the reason of the build: if reason is PR (eq(variables[&#39;Build.Reason&#39;], &#39;PullRequest&#39;)) - PR task should be executed and main should be skipped if reason is not PR (ne(variables[&#39;Build.Reason&#39;], &#39;PullRequest&#39;)) - main task should be executed and PR should be skipped Example azure-pipelines.yml --- jobs: - job: Windows2019_with_Java11 pool: vmImage: &#39;windows-2019&#39; steps: - task: Maven@3 displayName: &#39;Build/Verify PR&#39; condition: eq(variables[&#39;Build.Reason&#39;], &#39;PullRequest&#39;) inputs: mavenPomFile: &#39;pom.xml&#39; goals: &#39;verify&#39; jdkVersionOption: &#39;1.11&#39; - task: Maven@3 displayName: &#39;Build/Deploy&#39; condition: ne(variables[&#39;Build.Reason&#39;], &#39;PullRequest&#39;) inputs: mavenPomFile: &#39;pom.xml&#39; goals: &#39;verify&#39; jdkVersionOption: &#39;1.11&#39; - task: PublishTestResults@2 displayName: &#39;Publish Test Results **\\TEST-*.xml&#39; inputs: mergeTestResults: true Great. It works! Is there a way to eliminate dublication? Yes - using templates feature of pipelines. Create steps.yml template file Extract build taks into template Parametrize template Replace tasks in azure-pipelines.yml with template Example steps.yml --- parameters: mavenTaskName: &#39;&#39; mavenTaskGoals: &#39;&#39; mavenTaskCondition: &#39;&#39; steps: - task: Maven@3 displayName: $ condition: $ inputs: mavenPomFile: &#39;pom.xml&#39; goals: $ jdkVersionOption: &#39;1.11&#39; azure-pipelines.yml --- jobs: - job: Windows2019_with_Java11 pool: vmImage: &#39;windows-2019&#39; steps: - template: steps.yml parameters: mavenTaskName: &#39;Build/Verify PR&#39; mavenTaskGoals: &#39;verify&#39; mavenTaskCondition: eq(variables[&#39;Build.Reason&#39;], &#39;PullRequest&#39;) - template: steps.yml parameters: mavenTaskName: &#39;Build/Deploy&#39; mavenTaskGoals: &#39;deploy&#39; mavenTaskCondition: ne(variables[&#39;Build.Reason&#39;], &#39;PullRequest&#39;) - task: PublishTestResults@2 displayName: &#39;Publish Test Results **\\TEST-*.xml&#39; inputs: mergeTestResults: true That’s it. Conclusion Keeping all steps in one pipeline config file (vs having multiple yml configs for different needs) should simplify maintenance. In case the steps for PR and main builds are significantly different the template can become too complex so having two separate pipeleines might be a better option. The approach descibed above is not the only or the best option - it is just an option. Please enable JavaScript to view the comments powered by Disqus.","@type":"BlogPosting","headline":"Use one Azure DevOps pipeline to run PR and main builds separately","dateModified":"2021-12-23T03:00:01-06:00","datePublished":"2021-12-23T03:00:01-06:00","url":"https://mogikanen9.github.io/devops/ci/2021/12/23/same-azure-pipeline-for-build-and-pr.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://mogikanen9.github.io/devops/ci/2021/12/23/same-azure-pipeline-for-build-and-pr.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css">
+    <link rel="shortcut icon" type="image/png" href="/favicon.png"><link type="application/atom+xml" rel="alternate" href="https://mogikanen9.github.io/feed.xml" title="Vlad's Personal Blog" /><script>
+if(!(window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1")) {
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-118873436-1', 'auto');
+  ga('send', 'pageview');
+}
+</script>
+  
+</head>
+  <body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Vlad&#39;s Personal Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Use one Azure DevOps pipeline to run PR and main builds separately</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2021-12-23T03:00:01-06:00" itemprop="datePublished">Dec 23, 2021
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <h2 id="introduction">Introduction</h2>
+<p>For simplicity I want to have one Azure DevOps CI pipeline to build both PR and main branch of my Java app.</p>
+
+<h2 id="problem">Problem</h2>
+<p>PR build should focus on building code and running tests and not perform deploy step (publish artefact to a repo) - in other words those PR and main build steps have to be different and not interfer.</p>
+
+<h2 id="solution">Solution</h2>
+<p>Use <a href="https://docs.microsoft.com/en-us/azure/devops/pipelines/process/conditions?view=azure-devops&amp;tabs=yaml">condition</a> feature of pipelines and check the reason of the build:</p>
+<ul>
+  <li>if reason is PR (<code class="highlighter-rouge">eq(variables['Build.Reason'], 'PullRequest')</code>) - PR task should be executed and main should be skipped</li>
+  <li>if reason is not PR (<code class="highlighter-rouge">ne(variables['Build.Reason'], 'PullRequest')</code>) - main task should be executed and PR should be skipped</li>
+</ul>
+
+<h3 id="example">Example</h3>
+
+<p><code class="highlighter-rouge">azure-pipelines.yml</code></p>
+
+<div class="language-yml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="nn">---</span>
+<span class="na">jobs</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="na">job</span><span class="pi">:</span> <span class="s">Windows2019_with_Java11</span>
+  <span class="na">pool</span><span class="pi">:</span>
+    <span class="na">vmImage</span><span class="pi">:</span> <span class="s1">'</span><span class="s">windows-2019'</span>
+ 
+  <span class="na">steps</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">task</span><span class="pi">:</span> <span class="s">Maven@3</span>
+    <span class="na">displayName</span><span class="pi">:</span> <span class="s1">'</span><span class="s">Build/Verify</span><span class="nv"> </span><span class="s">PR'</span>
+    <span class="na">condition</span><span class="pi">:</span> <span class="s">eq(variables['Build.Reason'], 'PullRequest')</span>
+    <span class="na">inputs</span><span class="pi">:</span>
+      <span class="na">mavenPomFile</span><span class="pi">:</span> <span class="s1">'</span><span class="s">pom.xml'</span>
+      <span class="na">goals</span><span class="pi">:</span> <span class="s1">'</span><span class="s">verify'</span>
+      <span class="na">jdkVersionOption</span><span class="pi">:</span> <span class="s1">'</span><span class="s">1.11'</span>
+  <span class="pi">-</span> <span class="na">task</span><span class="pi">:</span> <span class="s">Maven@3</span>
+    <span class="na">displayName</span><span class="pi">:</span> <span class="s1">'</span><span class="s">Build/Deploy'</span>
+    <span class="na">condition</span><span class="pi">:</span> <span class="s">ne(variables['Build.Reason'], 'PullRequest')</span>
+    <span class="na">inputs</span><span class="pi">:</span>
+      <span class="na">mavenPomFile</span><span class="pi">:</span> <span class="s1">'</span><span class="s">pom.xml'</span>
+      <span class="na">goals</span><span class="pi">:</span> <span class="s1">'</span><span class="s">verify'</span>
+      <span class="na">jdkVersionOption</span><span class="pi">:</span> <span class="s1">'</span><span class="s">1.11'</span>
+  <span class="pi">-</span> <span class="na">task</span><span class="pi">:</span> <span class="s">PublishTestResults@2</span>
+    <span class="na">displayName</span><span class="pi">:</span> <span class="s1">'</span><span class="s">Publish</span><span class="nv"> </span><span class="s">Test</span><span class="nv"> </span><span class="s">Results</span><span class="nv"> </span><span class="s">**\TEST-*.xml'</span>
+    <span class="na">inputs</span><span class="pi">:</span>
+      <span class="na">mergeTestResults</span><span class="pi">:</span> <span class="no">true</span>
+
+</code></pre></div></div>
+
+<p>Great. It works!</p>
+
+<h2 id="is-there-a-way-to-eliminate-dublication">Is there a way to eliminate dublication?</h2>
+
+<p>Yes - using <a href="https://docs.microsoft.com/en-us/azure/devops/pipelines/process/templates?view=azure-devops">templates</a> feature of pipelines.</p>
+
+<ul>
+  <li>Create steps.yml template file</li>
+  <li>Extract build taks into template</li>
+  <li>Parametrize template</li>
+  <li>Replace tasks in azure-pipelines.yml with template</li>
+</ul>
+
+<h3 id="example-1">Example</h3>
+
+<p><code class="highlighter-rouge">steps.yml</code></p>
+
+<div class="language-yml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="nn">---</span>
+<span class="na">parameters</span><span class="pi">:</span>
+  <span class="na">mavenTaskName</span><span class="pi">:</span> <span class="s1">'</span><span class="s">'</span>
+  <span class="na">mavenTaskGoals</span><span class="pi">:</span> <span class="s1">'</span><span class="s">'</span>
+  <span class="na">mavenTaskCondition</span><span class="pi">:</span> <span class="s1">'</span><span class="s">'</span>
+<span class="na">steps</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="na">task</span><span class="pi">:</span> <span class="s">Maven@3</span>
+      <span class="na">displayName</span><span class="pi">:</span> <span class="s">$</span>
+      <span class="na">condition</span><span class="pi">:</span> <span class="s">$</span>
+      <span class="na">inputs</span><span class="pi">:</span>
+        <span class="na">mavenPomFile</span><span class="pi">:</span> <span class="s1">'</span><span class="s">pom.xml'</span>
+        <span class="na">goals</span><span class="pi">:</span> <span class="s">$</span>
+        <span class="na">jdkVersionOption</span><span class="pi">:</span> <span class="s1">'</span><span class="s">1.11'</span> 
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">azure-pipelines.yml</code></p>
+
+<div class="language-yml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="nn">---</span>
+<span class="na">jobs</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="na">job</span><span class="pi">:</span> <span class="s">Windows2019_with_Java11</span>
+  <span class="na">pool</span><span class="pi">:</span>
+    <span class="na">vmImage</span><span class="pi">:</span> <span class="s1">'</span><span class="s">windows-2019'</span>
+ 
+  <span class="na">steps</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">template</span><span class="pi">:</span> <span class="s">steps.yml</span>
+    <span class="na">parameters</span><span class="pi">:</span>
+      <span class="na">mavenTaskName</span><span class="pi">:</span> <span class="s1">'</span><span class="s">Build/Verify</span><span class="nv"> </span><span class="s">PR'</span>
+      <span class="na">mavenTaskGoals</span><span class="pi">:</span> <span class="s1">'</span><span class="s">verify'</span>
+      <span class="na">mavenTaskCondition</span><span class="pi">:</span> <span class="s">eq(variables['Build.Reason'], 'PullRequest')</span>
+  <span class="pi">-</span> <span class="na">template</span><span class="pi">:</span> <span class="s">steps.yml</span>
+    <span class="na">parameters</span><span class="pi">:</span>
+      <span class="na">mavenTaskName</span><span class="pi">:</span> <span class="s1">'</span><span class="s">Build/Deploy'</span>
+      <span class="na">mavenTaskGoals</span><span class="pi">:</span> <span class="s1">'</span><span class="s">deploy'</span>
+      <span class="na">mavenTaskCondition</span><span class="pi">:</span> <span class="s">ne(variables['Build.Reason'], 'PullRequest')</span>
+  <span class="pi">-</span> <span class="na">task</span><span class="pi">:</span> <span class="s">PublishTestResults@2</span>
+    <span class="na">displayName</span><span class="pi">:</span> <span class="s1">'</span><span class="s">Publish</span><span class="nv"> </span><span class="s">Test</span><span class="nv"> </span><span class="s">Results</span><span class="nv"> </span><span class="s">**\TEST-*.xml'</span>
+    <span class="na">inputs</span><span class="pi">:</span>
+      <span class="na">mergeTestResults</span><span class="pi">:</span> <span class="no">true</span>
+
+</code></pre></div></div>
+
+<p>That’s it.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+<ul>
+  <li>Keeping all steps in one pipeline config file (vs having multiple yml configs for different needs) should simplify maintenance.</li>
+  <li>In case the steps for PR and main builds are significantly different the template can become too complex so having two separate pipeleines might be a better option.</li>
+  <li>The approach descibed above is not the only or the best option - it is just an option.</li>
+</ul>
+
+<p><!-- Universal Code for Disqus  --></p>
+<div id="disqus_thread"></div>
+<script>
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    /*
+    var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+
+        s.src = '//https-mogikanen9-github-io.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+
+  </div><a class="u-url" href="/devops/ci/2021/12/23/same-azure-pipeline-for-build-and-pr.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Vlad&#39;s Personal Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Vlad&#39;s Personal Blog</li><li><a class="u-email" href="mailto:mogikanensoftware@gmail.com">mogikanensoftware@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/mogikanen9"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">mogikanen9</span></a></li><li><a href="https://www.twitter.com/mogikanen9"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">mogikanen9</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>This blog is an attempt to dive into personal blogging related to software development.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
