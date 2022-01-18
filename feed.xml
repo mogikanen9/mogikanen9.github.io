@@ -6,9 +6,205 @@
 </description>
     <link>https://mogikanen9.github.io/</link>
     <atom:link href="https://mogikanen9.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Fri, 24 Dec 2021 10:06:02 -0600</pubDate>
-    <lastBuildDate>Fri, 24 Dec 2021 10:06:02 -0600</lastBuildDate>
+    <pubDate>Mon, 17 Jan 2022 18:00:16 -0600</pubDate>
+    <lastBuildDate>Mon, 17 Jan 2022 18:00:16 -0600</lastBuildDate>
     <generator>Jekyll v3.8.6</generator>
+    
+      <item>
+        <title>Maven, Azure DevOps Pipelines and SonarCloud</title>
+        <description>&lt;h3 id=&quot;introduction&quot;&gt;Introduction&lt;/h3&gt;
+&lt;p&gt;This post will describe how to integrate SonarCloud for a Java (Maven-based) project in Azure DevOps CI.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h3 id=&quot;steps&quot;&gt;Steps&lt;/h3&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h4 id=&quot;1-create-java-project-in-github&quot;&gt;1. Create java project in GitHub&lt;/h4&gt;
+&lt;p&gt;Will be using &lt;a href=&quot;https://start.spring.io&quot;&gt;https://start.spring.io&lt;/a&gt; and  create a simple SpringBoot app.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h4 id=&quot;2-create-basic-azure-devops-pipeline-yaml-config-in-your-repo&quot;&gt;2. Create basic Azure DevOps pipeline YAML config in your repo:&lt;/h4&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-yml&quot; data-lang=&quot;yml&quot;&gt;&lt;span class=&quot;nn&quot;&gt;---&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;jobs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;job&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Linux_with_Java11&lt;/span&gt;  
+    &lt;span class=&quot;na&quot;&gt;pool&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;vmImage&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;Ubuntu-20.04'&lt;/span&gt;
+  
+    &lt;span class=&quot;na&quot;&gt;steps&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;task&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Maven@3&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;inputs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;mavenPomFile&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;$(System.DefaultWorkingDirectory)/spring-boot-azure-devops-sonarcloud/pom.xml'&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;javaHomeOption&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;JDKVersion'&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;jdkVersionOption&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;1.11'&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;jdkArchitectureOption&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;x64'&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;goals&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;verify'&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The above pipline contains only one maven task which builds sample project.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h4 id=&quot;3-create-azure-devops-project&quot;&gt;3. Create Azure DevOps project&lt;/h4&gt;
+&lt;p&gt;Create a new project in Azure DevOps, ex: &lt;a href=&quot;https://dev.azure.com/mogikanensoftware/Maven%20Demos&quot;&gt;https://dev.azure.com/mogikanensoftware/Maven%20Demos&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h4 id=&quot;4-create-azure-devops-build-pipeline&quot;&gt;4. Create Azure DevOps build pipeline&lt;/h4&gt;
+&lt;p&gt;Configure Azure DevOps CI pipeline:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Use “New pipeleine” in “Pipilenes -&amp;gt; Builds” in Azure DevOps project.&lt;/li&gt;
+  &lt;li&gt;Select GitHub(YAML) option&lt;/li&gt;
+  &lt;li&gt;Select the repo and point to &lt;code class=&quot;highlighter-rouge&quot;&gt;azure-pipelines.yml&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h4 id=&quot;5-sonarcloud-setup&quot;&gt;5. SonarCloud setup&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Create new project in SonarCloud&lt;/li&gt;
+  &lt;li&gt;Grant access to GitHub&lt;/li&gt;
+  &lt;li&gt;Select “With other CI tools” option on “Choose your Analysis Method” page&lt;/li&gt;
+  &lt;li&gt;Select “Maven” when answering “What option best describes your build?” question&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;At this point SonarCloud page contains description of futher steps which can be executed manually on your machine and include:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Setting &lt;code class=&quot;highlighter-rouge&quot;&gt;SONAR_TOKEN&lt;/code&gt; env var&lt;/li&gt;
+  &lt;li&gt;Generated token&lt;/li&gt;
+  &lt;li&gt;instructions on how to update pom.xml&lt;/li&gt;
+  &lt;li&gt;instructions on how to run sonar in your local project folder:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt; 
+ mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar &lt;span class=&quot;nt&quot;&gt;-Dsonar&lt;/span&gt;.projectKey&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;demo-java-sonar-cloud&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h4 id=&quot;6-adjust-pomxml&quot;&gt;6. Adjust pom.xml&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Add recommended sonar props to pom.xml&lt;/li&gt;
+  &lt;li&gt;Also add &lt;code class=&quot;highlighter-rouge&quot;&gt;sonar.projectKey&lt;/code&gt; to pom.xml to shorten maven command and consolidate sonar props&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-xml&quot; data-lang=&quot;xml&quot;&gt;...
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;com.example&lt;span class=&quot;nt&quot;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+	&lt;span class=&quot;nt&quot;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;demo&lt;span class=&quot;nt&quot;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+	&lt;span class=&quot;nt&quot;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;0.0.1-SNAPSHOT&lt;span class=&quot;nt&quot;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+	&lt;span class=&quot;nt&quot;&gt;&amp;lt;name&amp;gt;&lt;/span&gt;demo-java-sonar-cloud&lt;span class=&quot;nt&quot;&gt;&amp;lt;/name&amp;gt;&lt;/span&gt;
+	&lt;span class=&quot;nt&quot;&gt;&amp;lt;description&amp;gt;&lt;/span&gt;Demo project for Spring Boot&lt;span class=&quot;nt&quot;&gt;&amp;lt;/description&amp;gt;&lt;/span&gt;
+	&lt;span class=&quot;nt&quot;&gt;&amp;lt;properties&amp;gt;&lt;/span&gt;
+		&lt;span class=&quot;nt&quot;&gt;&amp;lt;java.version&amp;gt;&lt;/span&gt;11&lt;span class=&quot;nt&quot;&gt;&amp;lt;/java.version&amp;gt;&lt;/span&gt;
+		&lt;span class=&quot;nt&quot;&gt;&amp;lt;sonar.organization&amp;gt;&lt;/span&gt;mogikanen9-github&lt;span class=&quot;nt&quot;&gt;&amp;lt;/sonar.organization&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;sonar.host.url&amp;gt;&lt;/span&gt;https://sonarcloud.io&lt;span class=&quot;nt&quot;&gt;&amp;lt;/sonar.host.url&amp;gt;&lt;/span&gt;
+		&lt;span class=&quot;nt&quot;&gt;&amp;lt;sonar.projectKey&amp;gt;&lt;/span&gt;demo-java-sonar-cloud&lt;span class=&quot;nt&quot;&gt;&amp;lt;/sonar.projectKey&amp;gt;&lt;/span&gt;
+	&lt;span class=&quot;nt&quot;&gt;&amp;lt;/properties&amp;gt;&lt;/span&gt;
+  ...&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h4 id=&quot;7-main-detail----pass-sonar_token-safely-and-secretly&quot;&gt;7. Main detail  - pass SONAR_TOKEN safely and secretly&lt;/h4&gt;
+
+&lt;p&gt;The main idea is to execute sonar check using Sonar Maven plugin in Azure DevOps CI pipleine. The important details is that we need to provide SONAR_TOKEN env var to the pipeline and we also need to keep it secret  - token value must not be inside our source code (including azure-pipelines.yml)&lt;/p&gt;
+
+&lt;p&gt;A simple solution is to use Azure DevOps CI secret variables which can be stored with your pipeline in AzureDevOps. Those secret vars are encrypted.&lt;/p&gt;
+
+&lt;h4 id=&quot;8-define-a-variable-with-sonar_token-value&quot;&gt;8. Define a variable with SONAR_TOKEN value&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Edit created pipeline in AzureDevOps CI UI&lt;/li&gt;
+  &lt;li&gt;Select “Variables” in top right coner&lt;/li&gt;
+  &lt;li&gt;Create new var named &lt;code class=&quot;highlighter-rouge&quot;&gt;MY_SONAR_TOKEN_VAR&lt;/code&gt; and save SONAR_TONE value in it&lt;/li&gt;
+  &lt;li&gt;Important! Select &lt;code class=&quot;highlighter-rouge&quot;&gt;Keep this value secret&lt;/code&gt; option&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;9-add-sonar_token-as-env-var-to-pomxml&quot;&gt;9. Add SONAR_TOKEN as env var to pom.xml&lt;/h4&gt;
+
+&lt;p&gt;Each AzureDevOps CI pipeline task has &lt;code class=&quot;highlighter-rouge&quot;&gt;env&lt;/code&gt; option. Two changes has to be done:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;SONAR_TOKEN&lt;/code&gt; env has to be defined there&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;SONAR_TOKEN&lt;/code&gt; value must reference secret &lt;code class=&quot;highlighter-rouge&quot;&gt;MY_SONAR_TOKEN_VAR&lt;/code&gt; variable to get its value&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-yml&quot; data-lang=&quot;yml&quot;&gt;    &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;task&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Maven@3&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;inputs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;mavenPomFile&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;$(System.DefaultWorkingDirectory)/spring-boot-azure-devops-sonarcloud/pom.xml'&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;javaHomeOption&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;JDKVersion'&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;jdkVersionOption&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;1.11'&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;jdkArchitectureOption&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;x64'&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;goals&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;verify'&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;env&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; 
+        &lt;span class=&quot;na&quot;&gt;SONAR_TOKEN&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;$(MY_SONAR_TOKEN_VAR)&lt;/span&gt;  &lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h4 id=&quot;10-add-sonar-execution-to-maven-taks-goals&quot;&gt;10. Add sonar execution to Maven Taks goals&lt;/h4&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;goals: 'verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar'&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Final pipeline should look like:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-yml&quot; data-lang=&quot;yml&quot;&gt;&lt;span class=&quot;nn&quot;&gt;---&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;jobs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;job&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Linux_with_Java11&lt;/span&gt;  
+    &lt;span class=&quot;na&quot;&gt;pool&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;vmImage&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;Ubuntu-20.04'&lt;/span&gt;
+  
+    &lt;span class=&quot;na&quot;&gt;steps&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;task&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Maven@3&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;inputs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;mavenPomFile&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;$(System.DefaultWorkingDirectory)/spring-boot-azure-devops-sonarcloud/pom.xml'&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;javaHomeOption&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;JDKVersion'&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;jdkVersionOption&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;1.11'&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;jdkArchitectureOption&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;x64'&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;goals&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;verify&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;org.sonarsource.scanner.maven:sonar-maven-plugin:sonar'&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;env&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; 
+        &lt;span class=&quot;na&quot;&gt;SONAR_TOKEN&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;$(MY_SONAR_TOKEN_VAR)&lt;/span&gt;  &lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h3 id=&quot;done&quot;&gt;Done&lt;/h3&gt;
+
+&lt;p&gt;Once a pipeline build is triggered sonar plugin is executed. It will create update project in SonarCloud and will publish results there.&lt;/p&gt;
+
+&lt;p&gt;Alternative to Azure DevOps pipelines secret vars Azure Vault can be used to store and provide &lt;code class=&quot;highlighter-rouge&quot;&gt;SONAR_TOKEN&lt;/code&gt; value - check &lt;a href=&quot;https://docs.microsoft.com/en-us/azure/devops/pipelines/release/azure-key-vault?view=azure-devops&quot;&gt;Use Azure Key Vault secrets in Azure Pipelines&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;References:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://docs.microsoft.com/en-us/azure/devops/pipelines/artifacts/maven?toc=%2Fazure%2Fdevops%2Fartifacts%2Ftoc.json&amp;amp;view=azdevops#&quot;&gt;Set up Azure Pipelines and Maven&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://docs.sonarqube.org/latest/analysis/scan/sonarscanner-for-maven/&quot;&gt;Sonar for Maven&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/mogikanen9/blog-demo-projects/master/spring-boot-azure-devops-sonarcloud/&quot;&gt;Demo project source code&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;!-- Universal Code for Disqus  --&gt;&lt;/p&gt;
+&lt;div id=&quot;disqus_thread&quot;&gt;&lt;/div&gt;
+&lt;script&gt;
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    /*
+    var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+
+        s.src = '//https-mogikanen9-github-io.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+&lt;/script&gt;
+
+&lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
+
+</description>
+        <pubDate>Mon, 17 Jan 2022 09:44:19 -0600</pubDate>
+        <link>https://mogikanen9.github.io/devops/ci/2022/01/17/azure-devops-maven-sonarcloud.html</link>
+        <guid isPermaLink="true">https://mogikanen9.github.io/devops/ci/2022/01/17/azure-devops-maven-sonarcloud.html</guid>
+        
+        
+        <category>devops</category>
+        
+        <category>ci</category>
+        
+      </item>
     
       <item>
         <title>Use one Azure DevOps pipeline to run PR and main builds separately</title>
@@ -1609,89 +1805,6 @@ ca.uhn.hl7v2.model.v24.message.ORU_R01 msg = (ca.uhn.hl7v2.model.v24.message.ORU
         <pubDate>Tue, 04 Oct 2016 21:55:49 -0500</pubDate>
         <link>https://mogikanen9.github.io/java/hapi/2016/10/04/first-steps-with-hapi-p2.html</link>
         <guid isPermaLink="true">https://mogikanen9.github.io/java/hapi/2016/10/04/first-steps-with-hapi-p2.html</guid>
-        
-        
-        <category>java</category>
-        
-        <category>hapi</category>
-        
-      </item>
-    
-      <item>
-        <title>My First Steps with HAPI. Part 1. Introduction.</title>
-        <description>&lt;p&gt;This post is an introduction into HAPI library.&lt;/p&gt;
-
-&lt;h3 id=&quot;introduction&quot;&gt;Introduction&lt;/h3&gt;
-
-&lt;p&gt;We are starting a new project in Healthcare integration domain. The core functionality can be described like “a service/application which accepts HL7v2 messages over HTTP, validates them, transforms into custom XML and delivers to the recipients via SFTP”. When I googled for “HL7v2 Java” - HAPI is the first thing which tops the results. What does it mean? Let’s start with some definitions:&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Health_Level_7&quot;&gt;HL7&lt;/a&gt; stands for “Health Level 7”. It’s a standard which describes how to transfer different healthcare clinical data.&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Health_Level_7#HL7_version_2&quot;&gt;HL7v2&lt;/a&gt; is a version of HL7 standard developed in 1989 and it is based on pipes &lt;code class=&quot;highlighter-rouge&quot;&gt;|&lt;/code&gt; and carets &lt;code class=&quot;highlighter-rouge&quot;&gt;^&lt;/code&gt;.&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;http://hl7api.sourceforge.net/&quot;&gt;HAPI&lt;/a&gt; is a Java-based Hl7v2 parser library.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;When I first heard about HL7v2 several years ago and reviewed HL7v2 messages it looked like a bad joke. Neither XML nor JSON, really? Well, 1989 - what else you can expect. On the other side the protocol is widely adopted and currently it is still the main workhorse in healthcare industry.&lt;/p&gt;
-
-&lt;p&gt;First results of checking HAPI website:&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li&gt;The latest stable version is 2.2 and the last published date is “2014-05-12”;&lt;/li&gt;
-  &lt;li&gt;The site is hosted at &lt;a href=&quot;https://sourceforge.net/&quot;&gt;sourceforge.net&lt;/a&gt;;&lt;/li&gt;
-  &lt;li&gt;The library is built by &lt;a href=&quot;http://maven.apache.org/&quot;&gt;Maven&lt;/a&gt;;&lt;/li&gt;
-  &lt;li&gt;Lots of examples in &lt;a href=&quot;http://hl7api.sourceforge.net/devbyexample.html&quot;&gt;Developing using HAPI - By Example&lt;/a&gt; section;&lt;/li&gt;
-  &lt;li&gt;Decently looking Documentation section with references to all HL7v2.1 - HL7v2.6 messages.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;First impression conclusion - legacy library for legacy protocol with its pros. and cons.&lt;/p&gt;
-
-&lt;p&gt;Pros.&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li&gt;Open source;&lt;/li&gt;
-  &lt;li&gt;Should be stable and well tested;&lt;/li&gt;
-  &lt;li&gt;Decent documentation:&lt;/li&gt;
-  &lt;li&gt;Decent community;&lt;/li&gt;
-  &lt;li&gt;Maven based.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Cons:&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li&gt;No Java 8 support;&lt;/li&gt;
-  &lt;li&gt;Latest Spring Framework support is questionable;&lt;/li&gt;
-  &lt;li&gt;Support in general is a grey area.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Well, let’s take next step.&lt;/p&gt;
-
-&lt;p&gt;Looked really promising.&lt;/p&gt;
-
-&lt;!-- Universal Code for Disqus  --&gt;
-&lt;div id=&quot;disqus_thread&quot;&gt;&lt;/div&gt;
-&lt;script&gt;
-    /**
-     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
-     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
-     */
-    /*
-    var disqus_config = function () {
-        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-    };
-    */
-    (function() {  // DON'T EDIT BELOW THIS LINE
-        var d = document, s = d.createElement('script');
-
-        s.src = '//https-mogikanen9-github-io.disqus.com/embed.js';
-
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-&lt;/script&gt;
-
-&lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;https://disqus.com/?ref_noscript&quot; rel=&quot;nofollow&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
-
-</description>
-        <pubDate>Sun, 25 Sep 2016 21:55:49 -0500</pubDate>
-        <link>https://mogikanen9.github.io/java/hapi/2016/09/25/first-steps-with-hapi.html</link>
-        <guid isPermaLink="true">https://mogikanen9.github.io/java/hapi/2016/09/25/first-steps-with-hapi.html</guid>
         
         
         <category>java</category>

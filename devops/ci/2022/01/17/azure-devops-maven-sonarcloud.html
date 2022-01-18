@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Maven, Azure DevOps Pipelines and SonarCloud | Vlad’s Personal Blog</title>
+<meta name="generator" content="Jekyll v3.8.6" />
+<meta property="og:title" content="Maven, Azure DevOps Pipelines and SonarCloud" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Introduction This post will describe how to integrate SonarCloud for a Java (Maven-based) project in Azure DevOps CI." />
+<meta property="og:description" content="Introduction This post will describe how to integrate SonarCloud for a Java (Maven-based) project in Azure DevOps CI." />
+<link rel="canonical" href="https://mogikanen9.github.io/devops/ci/2022/01/17/azure-devops-maven-sonarcloud.html" />
+<meta property="og:url" content="https://mogikanen9.github.io/devops/ci/2022/01/17/azure-devops-maven-sonarcloud.html" />
+<meta property="og:site_name" content="Vlad’s Personal Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-01-17T09:44:19-06:00" />
+<script type="application/ld+json">
+{"description":"Introduction This post will describe how to integrate SonarCloud for a Java (Maven-based) project in Azure DevOps CI.","@type":"BlogPosting","headline":"Maven, Azure DevOps Pipelines and SonarCloud","dateModified":"2022-01-17T09:44:19-06:00","datePublished":"2022-01-17T09:44:19-06:00","url":"https://mogikanen9.github.io/devops/ci/2022/01/17/azure-devops-maven-sonarcloud.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://mogikanen9.github.io/devops/ci/2022/01/17/azure-devops-maven-sonarcloud.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css">
+    <link rel="shortcut icon" type="image/png" href="/favicon.png"><link type="application/atom+xml" rel="alternate" href="https://mogikanen9.github.io/feed.xml" title="Vlad's Personal Blog" /><script>
+if(!(window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1")) {
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-118873436-1', 'auto');
+  ga('send', 'pageview');
+}
+</script>
+  
+</head>
+  <body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Vlad&#39;s Personal Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Maven, Azure DevOps Pipelines and SonarCloud</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2022-01-17T09:44:19-06:00" itemprop="datePublished">Jan 17, 2022
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <h3 id="introduction">Introduction</h3>
+<p>This post will describe how to integrate SonarCloud for a Java (Maven-based) project in Azure DevOps CI.</p>
+
+<p><br /></p>
+<h3 id="steps">Steps</h3>
+
+<p><br /></p>
+<h4 id="1-create-java-project-in-github">1. Create java project in GitHub</h4>
+<p>Will be using <a href="https://start.spring.io">https://start.spring.io</a> and  create a simple SpringBoot app.</p>
+
+<p><br /></p>
+<h4 id="2-create-basic-azure-devops-pipeline-yaml-config-in-your-repo">2. Create basic Azure DevOps pipeline YAML config in your repo:</h4>
+
+<figure class="highlight"><pre><code class="language-yml" data-lang="yml"><span class="nn">---</span>
+<span class="na">jobs</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">job</span><span class="pi">:</span> <span class="s">Linux_with_Java11</span>  
+    <span class="na">pool</span><span class="pi">:</span>
+      <span class="na">vmImage</span><span class="pi">:</span> <span class="s1">'</span><span class="s">Ubuntu-20.04'</span>
+  
+    <span class="na">steps</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="na">task</span><span class="pi">:</span> <span class="s">Maven@3</span>
+      <span class="na">inputs</span><span class="pi">:</span>
+        <span class="na">mavenPomFile</span><span class="pi">:</span> <span class="s1">'</span><span class="s">$(System.DefaultWorkingDirectory)/spring-boot-azure-devops-sonarcloud/pom.xml'</span>
+        <span class="na">javaHomeOption</span><span class="pi">:</span> <span class="s1">'</span><span class="s">JDKVersion'</span>
+        <span class="na">jdkVersionOption</span><span class="pi">:</span> <span class="s1">'</span><span class="s">1.11'</span>
+        <span class="na">jdkArchitectureOption</span><span class="pi">:</span> <span class="s1">'</span><span class="s">x64'</span>
+        <span class="na">goals</span><span class="pi">:</span> <span class="s1">'</span><span class="s">verify'</span></code></pre></figure>
+
+<p>The above pipline contains only one maven task which builds sample project.</p>
+
+<p><br /></p>
+<h4 id="3-create-azure-devops-project">3. Create Azure DevOps project</h4>
+<p>Create a new project in Azure DevOps, ex: <a href="https://dev.azure.com/mogikanensoftware/Maven%20Demos">https://dev.azure.com/mogikanensoftware/Maven%20Demos</a></p>
+
+<p><br /></p>
+<h4 id="4-create-azure-devops-build-pipeline">4. Create Azure DevOps build pipeline</h4>
+<p>Configure Azure DevOps CI pipeline:</p>
+
+<ul>
+  <li>Use “New pipeleine” in “Pipilenes -&gt; Builds” in Azure DevOps project.</li>
+  <li>Select GitHub(YAML) option</li>
+  <li>Select the repo and point to <code class="highlighter-rouge">azure-pipelines.yml</code></li>
+</ul>
+
+<p><br /></p>
+<h4 id="5-sonarcloud-setup">5. SonarCloud setup</h4>
+
+<ul>
+  <li>Create new project in SonarCloud</li>
+  <li>Grant access to GitHub</li>
+  <li>Select “With other CI tools” option on “Choose your Analysis Method” page</li>
+  <li>Select “Maven” when answering “What option best describes your build?” question</li>
+</ul>
+
+<p>At this point SonarCloud page contains description of futher steps which can be executed manually on your machine and include:</p>
+
+<ul>
+  <li>Setting <code class="highlighter-rouge">SONAR_TOKEN</code> env var</li>
+  <li>Generated token</li>
+  <li>instructions on how to update pom.xml</li>
+  <li>instructions on how to run sonar in your local project folder:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"> 
+ mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar <span class="nt">-Dsonar</span>.projectKey<span class="o">=</span>demo-java-sonar-cloud</code></pre></figure>
+
+<p><br /></p>
+<h4 id="6-adjust-pomxml">6. Adjust pom.xml</h4>
+
+<ul>
+  <li>Add recommended sonar props to pom.xml</li>
+  <li>Also add <code class="highlighter-rouge">sonar.projectKey</code> to pom.xml to shorten maven command and consolidate sonar props</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-xml" data-lang="xml">...
+<span class="nt">&lt;groupId&gt;</span>com.example<span class="nt">&lt;/groupId&gt;</span>
+	<span class="nt">&lt;artifactId&gt;</span>demo<span class="nt">&lt;/artifactId&gt;</span>
+	<span class="nt">&lt;version&gt;</span>0.0.1-SNAPSHOT<span class="nt">&lt;/version&gt;</span>
+	<span class="nt">&lt;name&gt;</span>demo-java-sonar-cloud<span class="nt">&lt;/name&gt;</span>
+	<span class="nt">&lt;description&gt;</span>Demo project for Spring Boot<span class="nt">&lt;/description&gt;</span>
+	<span class="nt">&lt;properties&gt;</span>
+		<span class="nt">&lt;java.version&gt;</span>11<span class="nt">&lt;/java.version&gt;</span>
+		<span class="nt">&lt;sonar.organization&gt;</span>mogikanen9-github<span class="nt">&lt;/sonar.organization&gt;</span>
+    <span class="nt">&lt;sonar.host.url&gt;</span>https://sonarcloud.io<span class="nt">&lt;/sonar.host.url&gt;</span>
+		<span class="nt">&lt;sonar.projectKey&gt;</span>demo-java-sonar-cloud<span class="nt">&lt;/sonar.projectKey&gt;</span>
+	<span class="nt">&lt;/properties&gt;</span>
+  ...</code></pre></figure>
+
+<h4 id="7-main-detail----pass-sonar_token-safely-and-secretly">7. Main detail  - pass SONAR_TOKEN safely and secretly</h4>
+
+<p>The main idea is to execute sonar check using Sonar Maven plugin in Azure DevOps CI pipleine. The important details is that we need to provide SONAR_TOKEN env var to the pipeline and we also need to keep it secret  - token value must not be inside our source code (including azure-pipelines.yml)</p>
+
+<p>A simple solution is to use Azure DevOps CI secret variables which can be stored with your pipeline in AzureDevOps. Those secret vars are encrypted.</p>
+
+<h4 id="8-define-a-variable-with-sonar_token-value">8. Define a variable with SONAR_TOKEN value</h4>
+
+<ul>
+  <li>Edit created pipeline in AzureDevOps CI UI</li>
+  <li>Select “Variables” in top right coner</li>
+  <li>Create new var named <code class="highlighter-rouge">MY_SONAR_TOKEN_VAR</code> and save SONAR_TONE value in it</li>
+  <li>Important! Select <code class="highlighter-rouge">Keep this value secret</code> option</li>
+</ul>
+
+<h4 id="9-add-sonar_token-as-env-var-to-pomxml">9. Add SONAR_TOKEN as env var to pom.xml</h4>
+
+<p>Each AzureDevOps CI pipeline task has <code class="highlighter-rouge">env</code> option. Two changes has to be done:</p>
+<ul>
+  <li><code class="highlighter-rouge">SONAR_TOKEN</code> env has to be defined there</li>
+  <li><code class="highlighter-rouge">SONAR_TOKEN</code> value must reference secret <code class="highlighter-rouge">MY_SONAR_TOKEN_VAR</code> variable to get its value</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-yml" data-lang="yml">    <span class="pi">-</span> <span class="na">task</span><span class="pi">:</span> <span class="s">Maven@3</span>
+      <span class="na">inputs</span><span class="pi">:</span>
+        <span class="na">mavenPomFile</span><span class="pi">:</span> <span class="s1">'</span><span class="s">$(System.DefaultWorkingDirectory)/spring-boot-azure-devops-sonarcloud/pom.xml'</span>
+        <span class="na">javaHomeOption</span><span class="pi">:</span> <span class="s1">'</span><span class="s">JDKVersion'</span>
+        <span class="na">jdkVersionOption</span><span class="pi">:</span> <span class="s1">'</span><span class="s">1.11'</span>
+        <span class="na">jdkArchitectureOption</span><span class="pi">:</span> <span class="s1">'</span><span class="s">x64'</span>
+        <span class="na">goals</span><span class="pi">:</span> <span class="s1">'</span><span class="s">verify'</span>
+      <span class="na">env</span><span class="pi">:</span> 
+        <span class="na">SONAR_TOKEN</span><span class="pi">:</span> <span class="s">$(MY_SONAR_TOKEN_VAR)</span>  </code></pre></figure>
+
+<h4 id="10-add-sonar-execution-to-maven-taks-goals">10. Add sonar execution to Maven Taks goals</h4>
+
+<p><code class="highlighter-rouge">goals: 'verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar'</code></p>
+
+<p>Final pipeline should look like:</p>
+
+<figure class="highlight"><pre><code class="language-yml" data-lang="yml"><span class="nn">---</span>
+<span class="na">jobs</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">job</span><span class="pi">:</span> <span class="s">Linux_with_Java11</span>  
+    <span class="na">pool</span><span class="pi">:</span>
+      <span class="na">vmImage</span><span class="pi">:</span> <span class="s1">'</span><span class="s">Ubuntu-20.04'</span>
+  
+    <span class="na">steps</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="na">task</span><span class="pi">:</span> <span class="s">Maven@3</span>
+      <span class="na">inputs</span><span class="pi">:</span>
+        <span class="na">mavenPomFile</span><span class="pi">:</span> <span class="s1">'</span><span class="s">$(System.DefaultWorkingDirectory)/spring-boot-azure-devops-sonarcloud/pom.xml'</span>
+        <span class="na">javaHomeOption</span><span class="pi">:</span> <span class="s1">'</span><span class="s">JDKVersion'</span>
+        <span class="na">jdkVersionOption</span><span class="pi">:</span> <span class="s1">'</span><span class="s">1.11'</span>
+        <span class="na">jdkArchitectureOption</span><span class="pi">:</span> <span class="s1">'</span><span class="s">x64'</span>
+        <span class="na">goals</span><span class="pi">:</span> <span class="s1">'</span><span class="s">verify</span><span class="nv"> </span><span class="s">org.sonarsource.scanner.maven:sonar-maven-plugin:sonar'</span>
+      <span class="na">env</span><span class="pi">:</span> 
+        <span class="na">SONAR_TOKEN</span><span class="pi">:</span> <span class="s">$(MY_SONAR_TOKEN_VAR)</span>  </code></pre></figure>
+
+<h3 id="done">Done</h3>
+
+<p>Once a pipeline build is triggered sonar plugin is executed. It will create update project in SonarCloud and will publish results there.</p>
+
+<p>Alternative to Azure DevOps pipelines secret vars Azure Vault can be used to store and provide <code class="highlighter-rouge">SONAR_TOKEN</code> value - check <a href="https://docs.microsoft.com/en-us/azure/devops/pipelines/release/azure-key-vault?view=azure-devops">Use Azure Key Vault secrets in Azure Pipelines</a>.</p>
+
+<p>References:</p>
+<ul>
+  <li><a href="https://docs.microsoft.com/en-us/azure/devops/pipelines/artifacts/maven?toc=%2Fazure%2Fdevops%2Fartifacts%2Ftoc.json&amp;view=azdevops#">Set up Azure Pipelines and Maven</a></li>
+  <li><a href="https://docs.sonarqube.org/latest/analysis/scan/sonarscanner-for-maven/">Sonar for Maven</a></li>
+  <li><a href="https://github.com/mogikanen9/blog-demo-projects/master/spring-boot-azure-devops-sonarcloud/">Demo project source code</a></li>
+</ul>
+
+<p><!-- Universal Code for Disqus  --></p>
+<div id="disqus_thread"></div>
+<script>
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    /*
+    var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+
+        s.src = '//https-mogikanen9-github-io.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+
+  </div><a class="u-url" href="/devops/ci/2022/01/17/azure-devops-maven-sonarcloud.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Vlad&#39;s Personal Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Vlad&#39;s Personal Blog</li><li><a class="u-email" href="mailto:mogikanensoftware@gmail.com">mogikanensoftware@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/mogikanen9"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">mogikanen9</span></a></li><li><a href="https://www.twitter.com/mogikanen9"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">mogikanen9</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>This blog is an attempt to dive into personal blogging related to software development.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
