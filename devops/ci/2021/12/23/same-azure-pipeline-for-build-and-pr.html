@@ -1,5 +1,15 @@
 <!DOCTYPE html>
-<html lang="en"><head>
+<html lang="en">
+  <head>
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BNBPB9P8KS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-BNBPB9P8KS');
+</script>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
@@ -18,17 +28,9 @@
 {"description":"Introduction For simplicity I want to have one Azure DevOps CI pipeline to build both PR and main branch of my Java app. Problem PR build should focus on building code and running tests and not perform deploy step (publish artefact to a repo) - in other words those PR and main build steps have to be different and not interfer. Solution Use condition feature of pipelines and check the reason of the build: if reason is PR (eq(variables[&#39;Build.Reason&#39;], &#39;PullRequest&#39;)) - PR task should be executed and main should be skipped if reason is not PR (ne(variables[&#39;Build.Reason&#39;], &#39;PullRequest&#39;)) - main task should be executed and PR should be skipped Example azure-pipelines.yml --- jobs: - job: Windows2019_with_Java11 pool: vmImage: &#39;windows-2019&#39; steps: - task: Maven@3 displayName: &#39;Build/Verify PR&#39; condition: eq(variables[&#39;Build.Reason&#39;], &#39;PullRequest&#39;) inputs: mavenPomFile: &#39;pom.xml&#39; goals: &#39;verify&#39; jdkVersionOption: &#39;1.11&#39; - task: Maven@3 displayName: &#39;Build/Deploy&#39; condition: ne(variables[&#39;Build.Reason&#39;], &#39;PullRequest&#39;) inputs: mavenPomFile: &#39;pom.xml&#39; goals: &#39;verify&#39; jdkVersionOption: &#39;1.11&#39; - task: PublishTestResults@2 displayName: &#39;Publish Test Results **\\TEST-*.xml&#39; inputs: mergeTestResults: true Great. It works! Is there a way to eliminate dublication? Yes - using templates feature of pipelines. Create steps.yml template file Extract build taks into template Parametrize template Replace tasks in azure-pipelines.yml with template Example steps.yml --- parameters: mavenTaskName: &#39;&#39; mavenTaskGoals: &#39;&#39; mavenTaskCondition: &#39;&#39; steps: - task: Maven@3 displayName: $ condition: $ inputs: mavenPomFile: &#39;pom.xml&#39; goals: $ jdkVersionOption: &#39;1.11&#39; azure-pipelines.yml --- jobs: - job: Windows2019_with_Java11 pool: vmImage: &#39;windows-2019&#39; steps: - template: steps.yml parameters: mavenTaskName: &#39;Build/Verify PR&#39; mavenTaskGoals: &#39;verify&#39; mavenTaskCondition: eq(variables[&#39;Build.Reason&#39;], &#39;PullRequest&#39;) - template: steps.yml parameters: mavenTaskName: &#39;Build/Deploy&#39; mavenTaskGoals: &#39;deploy&#39; mavenTaskCondition: ne(variables[&#39;Build.Reason&#39;], &#39;PullRequest&#39;) - task: PublishTestResults@2 displayName: &#39;Publish Test Results **\\TEST-*.xml&#39; inputs: mergeTestResults: true That’s it. Conclusion Keeping all steps in one pipeline config file (vs having multiple yml configs for different needs) should simplify maintenance. In case the steps for PR and main builds are significantly different the template can become too complex so having two separate pipeleines might be a better option. The approach descibed above is not the only or the best option - it is just an option. Please enable JavaScript to view the comments powered by Disqus.","@type":"BlogPosting","headline":"Use one Azure DevOps pipeline to run PR and main builds separately","dateModified":"2021-12-23T03:00:01-06:00","datePublished":"2021-12-23T03:00:01-06:00","url":"https://mogikanen9.github.io/devops/ci/2021/12/23/same-azure-pipeline-for-build-and-pr.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://mogikanen9.github.io/devops/ci/2021/12/23/same-azure-pipeline-for-build-and-pr.html"},"@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css">
-    <link rel="shortcut icon" type="image/png" href="/favicon.png"><link type="application/atom+xml" rel="alternate" href="https://mogikanen9.github.io/feed.xml" title="Vlad's Personal Blog" /><script>
-if(!(window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1")) {
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-118873436-1', 'auto');
-  ga('send', 'pageview');
-}
-</script>
+    <link rel="shortcut icon" type="image/png" href="/favicon.png">
+    <link type="application/atom+xml" rel="alternate" href="https://mogikanen9.github.io/feed.xml" title="Vlad's Personal Blog" />
+    
   
 </head>
   <body><header class="site-header" role="banner">

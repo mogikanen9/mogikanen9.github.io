@@ -1,5 +1,15 @@
 <!DOCTYPE html>
-<html lang="en"><head>
+<html lang="en">
+  <head>
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BNBPB9P8KS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-BNBPB9P8KS');
+</script>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
@@ -18,17 +28,9 @@
 {"description":"Introduction This post reproduces steps from Open chrome with method Post body data on specific Url. Approach Create HTML form with POST. Set form submission event to “onload” - submit form once html is opened Convert html form into BASE64 Launch new browser window from command line and provide target URL as Data URL format using BASE64 version of HTML form Detailed example As an exmaple will be using a SpringBoot app which has to be opened/launched by submitting POST request to “/newbook” endpoint (which creates a new book). Target App (the one to be opened) Spring MVC App which opens “ok” page/screen upin POST request which creates new book. ... public class BookMVCController { private final BookRepository bookRepository; @PostMapping(path = &quot;/newbook&quot;, consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE}) public String postBookUrlEncoded(@ModelAttribute BookDTO dto) { Book book = new Book(); book.setName(dto.getName()); book.setDesc(dto.getDesc()); book.setYear(dto.getYear()); bookRepository.save(book); return &quot;ok&quot;; } ... } HTML Form with POST &lt;body onload=&quot;document.getElementById(&#39;bookForm&#39;).submit()&quot;&gt; &lt;form action=http://localhost:8080/newbook id=&quot;bookForm&quot; method=&quot;post&quot;&gt; &lt;input name=&quot;name&quot; value=&quot;book145&quot;&gt; &lt;input name=&quot;desc&quot; value=&quot;desc2345&quot;&gt; &lt;input name=&quot;year&quot; value=&quot;2025&quot;&gt; &lt;input type=&quot;submit&quot; value=&quot;go&quot;&gt; &lt;/form&gt; &lt;/body&gt; HTML form encoded in BASE64 PGJvZHkgb25sb2FkPSJkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnYm9va0Zvcm0nKS5zdWJtaXQoKSI+DQogICAgPGZvcm0gYWN0aW9uPSJodHRwOi8vbG9jYWxob3N0OjgwODAvbmV3Ym9vayIgaWQ9ImJvb2tGb3JtIiBtZXRob2Q9InBvc3QiPg0KICAgICAgPGlucHV0IG5hbWU9Im5hbWUiIHZhbHVlPSJib29rMTQ1Ij4NCiAgICAgIDxpbnB1dCBuYW1lPSJkZXNjIiB2YWx1ZT0iZGVzYzIzNDUiPg0KICAgICAgPGlucHV0IG5hbWU9InllYXIiIHZhbHVlPSIyMDI1Ij4NCiAgICAgIDxpbnB1dCB0eXBlPSJzdWJtaXQiIHZhbHVlPSJnbyI+DQogICAgPC9mb3JtPg0KICA8L2JvZHk+ Launch web app from command line msedge.exe data:text/html;base64,PGJvZHkgb25sb2FkPSJkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnYm9va0Zvcm0nKS5zdWJtaXQoKSI+DQogICAgPGZvcm0gYWN0aW9uPSJodHRwOi8vbG9jYWxob3N0OjgwODAvbmV3Ym9vayIgaWQ9ImJvb2tGb3JtIiBtZXRob2Q9InBvc3QiPg0KICAgICAgPGlucHV0IG5hbWU9Im5hbWUiIHZhbHVlPSJib29rMTQ1Ij4NCiAgICAgIDxpbnB1dCBuYW1lPSJkZXNjIiB2YWx1ZT0iZGVzYzIzNDUiPg0KICAgICAgPGlucHV0IG5hbWU9InllYXIiIHZhbHVlPSIyMDI1Ij4NCiAgICAgIDxpbnB1dCB0eXBlPSJzdWJtaXQiIHZhbHVlPSJnbyI+DQogICAgPC9mb3JtPg0KICA8L2JvZHk+ Please enable JavaScript to view the comments powered by Disqus.","@type":"BlogPosting","headline":"Open web application in new browser window from command line with POST","dateModified":"2021-12-06T03:00:01-06:00","datePublished":"2021-12-06T03:00:01-06:00","url":"https://mogikanen9.github.io/web/http/post/url/2021/12/06/open-app-new-window-post-url.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://mogikanen9.github.io/web/http/post/url/2021/12/06/open-app-new-window-post-url.html"},"@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css">
-    <link rel="shortcut icon" type="image/png" href="/favicon.png"><link type="application/atom+xml" rel="alternate" href="https://mogikanen9.github.io/feed.xml" title="Vlad's Personal Blog" /><script>
-if(!(window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1")) {
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-118873436-1', 'auto');
-  ga('send', 'pageview');
-}
-</script>
+    <link rel="shortcut icon" type="image/png" href="/favicon.png"><link type="application/atom+xml" rel="alternate" href="https://mogikanen9.github.io/feed.xml" title="Vlad's Personal Blog" />
+    
+  
   
 </head>
   <body><header class="site-header" role="banner">
